@@ -759,9 +759,11 @@ storefront, not a bolted-on e-commerce widget:
 * No account, no login, no saved-address book — the cart is a temporary,
   client-side assembly step only.
 * Keep it visually restrained and consistent with Section 24's component
-  system (Button, Badge, Modal/Bottom Sheet all already exist as the right
-  building blocks — a cart drawer/sheet is a natural extension, not a new
-  visual language).
+  system (Button, Badge already exist as the right building blocks). As of
+  Milestone 5, the cart lives at a dedicated `/keranjang` page rather than a
+  drawer/bottom sheet — adding an item shows a brief, non-blocking toast and
+  never interrupts browsing; the drawer/sheet pattern from this section's
+  original framing has been superseded.
 * Never show marketplace-style checkout chrome (coupon codes, shipping
   calculators, saved payment methods) — the only inputs are name, phone,
   and an optional note, then the customer is hand-off to WhatsApp exactly as

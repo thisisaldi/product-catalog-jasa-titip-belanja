@@ -1,8 +1,9 @@
 "use client";
 
-import { useRef } from "react";
+import { useRef, useState } from "react";
 import type { Brand, Category } from "@/lib/catalog/types";
-import { SlidersIcon, ChevronDownIcon, CloseIcon } from "@/components/shared/icons";
+import { SlidersIcon, CloseIcon } from "@/components/shared/icons";
+import { FilterDropdown } from "./FilterDropdown";
 
 export type Availability = "all" | "available" | "sold-out";
 
@@ -60,7 +61,7 @@ function AvailabilityPills({
         return (
           <label
             key={option.value}
-            className={`cursor-pointer rounded-full border px-3 py-1.5 text-sm transition-colors ${
+            className={`cursor-pointer rounded-full border px-3.5 py-2 text-sm transition-colors ${
               checked
                 ? "border-accent bg-accent-soft text-accent"
                 : "border-border text-text-secondary hover:border-accent/50"
@@ -123,20 +124,23 @@ function FilterGroups(props: FilterBarProps) {
 
 export function FilterBar(props: FilterBarProps) {
   const dialogRef = useRef<HTMLDialogElement>(null);
+  // Shared open-id: only one desktop dropdown can be open at a time
+  // (Milestone 5 — replaces independent, non-coordinating <details> elements).
+  const [openDropdown, setOpenDropdown] = useState<string | null>(null);
   const activeCount =
     props.selectedCategories.length +
     props.selectedBrands.length +
     (props.availability !== "all" ? 1 : 0);
 
   return (
-    <div className="border-b border-border pb-4">
+    <div className="border-b border-border pb-5">
       {/* Mobile: single trigger opening a bottom sheet (native <dialog> gives us
           focus trap + Esc-to-close + backdrop for free — 03 Section 2.4). */}
       <div className="lg:hidden">
         <button
           type="button"
           onClick={() => dialogRef.current?.showModal()}
-          className={`inline-flex items-center gap-2 rounded-md border px-4 py-2 text-sm font-medium ${
+          className={`inline-flex items-center gap-2 rounded-full border px-4 py-2.5 text-sm font-medium ${
             activeCount > 0
               ? "border-accent bg-accent-soft text-accent"
               : "border-border text-text-primary"
@@ -191,42 +195,41 @@ export function FilterBar(props: FilterBarProps) {
         </dialog>
       </div>
 
-      {/* Desktop (>=1024px): inline row — Category/Brand as native <details>
-          popovers, Availability as an always-visible pill group (03 Section 2.4). */}
+      {/* Desktop (>=1024px): inline row, mutually-exclusive dropdowns. */}
       <div className="hidden items-center gap-3 lg:flex">
-        <details className="group relative">
-          <summary className="flex cursor-pointer list-none items-center gap-1 rounded-md border border-border px-3 py-2 text-sm font-medium text-text-primary [&::-webkit-details-marker]:hidden">
-            Kategori{props.selectedCategories.length > 0 ? ` (${props.selectedCategories.length})` : ""}
-            <ChevronDownIcon className="h-4 w-4 transition-transform group-open:rotate-180" />
-          </summary>
-          <div className="absolute left-0 z-10 mt-2 w-56 rounded-lg border border-border bg-surface p-3 shadow-lg">
-            {props.categories.map((category) => (
-              <CheckboxRow
-                key={category.id}
-                label={category.name}
-                checked={props.selectedCategories.includes(category.slug)}
-                onChange={() => props.onToggleCategory(category.slug)}
-              />
-            ))}
-          </div>
-        </details>
+        <FilterDropdown
+          id="kategori"
+          label="Kategori"
+          activeCount={props.selectedCategories.length}
+          openId={openDropdown}
+          onOpenChange={setOpenDropdown}
+        >
+          {props.categories.map((category) => (
+            <CheckboxRow
+              key={category.id}
+              label={category.name}
+              checked={props.selectedCategories.includes(category.slug)}
+              onChange={() => props.onToggleCategory(category.slug)}
+            />
+          ))}
+        </FilterDropdown>
 
-        <details className="group relative">
-          <summary className="flex cursor-pointer list-none items-center gap-1 rounded-md border border-border px-3 py-2 text-sm font-medium text-text-primary [&::-webkit-details-marker]:hidden">
-            Merek{props.selectedBrands.length > 0 ? ` (${props.selectedBrands.length})` : ""}
-            <ChevronDownIcon className="h-4 w-4 transition-transform group-open:rotate-180" />
-          </summary>
-          <div className="absolute left-0 z-10 mt-2 w-56 rounded-lg border border-border bg-surface p-3 shadow-lg">
-            {props.brands.map((brand) => (
-              <CheckboxRow
-                key={brand.id}
-                label={brand.name}
-                checked={props.selectedBrands.includes(brand.slug)}
-                onChange={() => props.onToggleBrand(brand.slug)}
-              />
-            ))}
-          </div>
-        </details>
+        <FilterDropdown
+          id="merek"
+          label="Merek"
+          activeCount={props.selectedBrands.length}
+          openId={openDropdown}
+          onOpenChange={setOpenDropdown}
+        >
+          {props.brands.map((brand) => (
+            <CheckboxRow
+              key={brand.id}
+              label={brand.name}
+              checked={props.selectedBrands.includes(brand.slug)}
+              onChange={() => props.onToggleBrand(brand.slug)}
+            />
+          ))}
+        </FilterDropdown>
 
         <AvailabilityPills value={props.availability} onChange={props.onAvailabilityChange} />
 

@@ -1,15 +1,19 @@
 "use client";
 
+import Link from "next/link";
 import { useCart } from "@/lib/cart/CartContext";
 import { BagIcon } from "@/components/shared/icons";
 
+/**
+ * Plain link to the dedicated /keranjang page (Milestone 5) — the cart is
+ * no longer a blocking drawer/modal triggered from here.
+ */
 export function CartIndicator() {
   const cart = useCart();
   return (
-    <button
-      type="button"
-      onClick={cart.openCart}
-      aria-label={`Buka keranjang, ${cart.totalCount} item`}
+    <Link
+      href="/keranjang"
+      aria-label={`Keranjang, ${cart.totalCount} item`}
       className="relative rounded-full p-2 text-text-primary hover:text-accent"
     >
       <BagIcon className="h-6 w-6" />
@@ -21,6 +25,6 @@ export function CartIndicator() {
           {cart.totalCount}
         </span>
       )}
-    </button>
+    </Link>
   );
 }

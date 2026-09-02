@@ -27,7 +27,7 @@ Per `04-system-design.md` §7.1/7.4, admin lives on a separate subdomain (`admin
 
 Category/brand/availability filtering and search are **not** separate routes. They are query-string state on `/` (`?q=&kategori=&merek=&ketersediaan=&cursor=`), matching the design brief's single catalog IA (`02` §8: `Catalog → Search / Category Filter / Brand Filter → Product Detail`, no category/brand landing pages defined anywhere in `01`–`03`). Query params are kept shareable/back-button-safe (`router.replace` on filter change) as a low-cost UX default, not a new requirement.
 
-No route exists for account, wishlist, or reviews — explicitly excluded (`01` §17, `CLAUDE.md` §2). The cart is client-side state (no dedicated route required — it renders as a drawer/sheet reachable from any page); order submission is a Server Action, not a page (`01` §5.1a, Milestone 4).
+No route exists for account, wishlist, or reviews — explicitly excluded (`01` §17, `CLAUDE.md` §2). The cart is client-side state (localStorage, no dedicated DB table) rendered at a dedicated `/keranjang` route rather than a drawer/sheet, so adding an item never interrupts browsing (Milestone 5); order submission happens inline on that page via a Server Action, not a separate page (`01` §5.1a).
 
 ### 1.3 Admin domain (`admin.{domain}`)
 
