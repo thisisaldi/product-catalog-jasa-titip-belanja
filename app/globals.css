@@ -1,0 +1,45 @@
+@import "tailwindcss";
+
+/* Warm Modern Boutique design tokens — docs/03-design-specification.md Section 1 */
+:root {
+  --bg: #fbf9f6;
+  --surface: #ffffff;
+  --text-primary: #2a2622;
+  --text-secondary: #6b645c;
+  --border: #e8e2d9;
+  --accent: #b5533c;
+  --accent-soft: #f1e3dc;
+  --available: #3f7a52;
+  --sold-out: #8a837a;
+  --whatsapp: #25d366;
+  --whatsapp-cta: #157a3a;
+  --whatsapp-text: #ffffff;
+}
+
+/* Dark mode is explicitly out of scope for v1 (03 Section 1.7) — single light theme, locked. */
+
+@theme inline {
+  --color-bg: var(--bg);
+  --color-surface: var(--surface);
+  --color-text-primary: var(--text-primary);
+  --color-text-secondary: var(--text-secondary);
+  --color-border: var(--border);
+  --color-accent: var(--accent);
+  --color-accent-soft: var(--accent-soft);
+  --color-available: var(--available);
+  --color-sold-out: var(--sold-out);
+  --color-whatsapp: var(--whatsapp);
+  --color-whatsapp-cta: var(--whatsapp-cta);
+  --color-whatsapp-text: var(--whatsapp-text);
+
+  --font-sans: var(--font-plus-jakarta-sans);
+
+  --radius-md: 8px;
+  --radius-lg: 12px;
+  --radius-2xl: 20px;
+}
+
+body {
+  background: var(--bg);
+  color: var(--text-primary);
+}
