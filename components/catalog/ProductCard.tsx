@@ -2,6 +2,7 @@ import Link from "next/link";
 import type { Product } from "@/lib/catalog/types";
 import { formatPrice } from "@/lib/format";
 import { ProductImagePlaceholder } from "@/components/shared/ProductImagePlaceholder";
+import { AddToCartButton } from "@/components/cart/AddToCartButton";
 import { AvailabilityBadge } from "./AvailabilityBadge";
 
 export function ProductCard({ product }: { product: Product }) {
@@ -13,32 +14,39 @@ export function ProductCard({ product }: { product: Product }) {
       className="group block rounded-lg outline-none transition-transform active:scale-[0.98] focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2"
       aria-label={`${product.brand.name} ${product.name}`}
     >
-      <div className="overflow-hidden rounded-lg">
+      <div className="relative overflow-hidden rounded-lg bg-border shadow-sm transition-shadow duration-300 group-hover:shadow-card">
         {thumbnail ? (
           // Plain <img>, not next/image: Storage host varies per environment.
           <img
             src={thumbnail.url}
             alt={thumbnail.altText ?? `${product.brand.name} ${product.name}`}
-            className="aspect-[4/5] w-full object-cover transition-transform duration-300 ease-out group-hover:scale-[1.03]"
+            className="aspect-[4/5] w-full object-cover transition-transform duration-300 ease-out group-hover:scale-[1.04]"
           />
         ) : (
           <ProductImagePlaceholder
             seed={product.id}
-            className="aspect-[4/5] w-full transition-transform duration-300 ease-out group-hover:scale-[1.03]"
+            className="aspect-[4/5] w-full transition-transform duration-300 ease-out group-hover:scale-[1.04]"
           />
         )}
+        {product.available && (
+          <div className="absolute bottom-2 right-2">
+            <AddToCartButton product={product} stopPropagation iconOnly />
+          </div>
+        )}
       </div>
-      <div className="flex flex-col gap-1 pt-3">
-        <span className="text-sm font-medium uppercase tracking-wide text-text-secondary">
+      <div className="flex flex-col gap-1 pt-3.5">
+        <span className="text-xs font-medium uppercase tracking-wider text-text-secondary">
           {product.brand.name}
         </span>
-        <span className="line-clamp-2 text-base font-medium leading-tight text-text-primary">
+        <span className="line-clamp-2 text-[15px] font-medium leading-snug text-text-primary">
           {product.name}
         </span>
-        <span className="text-base font-semibold text-text-primary">
-          {formatPrice(product.price)}
-        </span>
-        <AvailabilityBadge available={product.available} />
+        <div className="mt-0.5 flex items-center justify-between gap-2">
+          <span className="text-base font-semibold text-text-primary">
+            {formatPrice(product.price)}
+          </span>
+          <AvailabilityBadge available={product.available} />
+        </div>
       </div>
     </Link>
   );

@@ -5,6 +5,15 @@
  */
 type IconProps = { className?: string };
 
+export function BagIcon({ className }: IconProps) {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.5} className={className} aria-hidden="true">
+      <path d="M6 8h12l-1 12H7L6 8Z" strokeLinejoin="round" />
+      <path d="M9 8V6a3 3 0 0 1 6 0v2" strokeLinecap="round" />
+    </svg>
+  );
+}
+
 export function SearchIcon({ className }: IconProps) {
   return (
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.5} className={className} aria-hidden="true">

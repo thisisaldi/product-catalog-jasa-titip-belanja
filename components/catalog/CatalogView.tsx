@@ -111,7 +111,7 @@ export function CatalogView({
   }
 
   return (
-    <div className="mt-6">
+    <div className="mt-8 sm:mt-10">
       <FilterBar
         categories={categories}
         brands={brands}

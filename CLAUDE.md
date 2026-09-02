@@ -48,6 +48,8 @@ The public website provides:
 * Brand filtering
 * Product detail
 * Product availability
+* Customer cart (order composition — quantity/consolidation, no account, no payment)
+* Self-service order submission (creates a PENDING sale, no payment collected)
 * WhatsApp ordering
 
 The internal system provides:
@@ -64,8 +66,7 @@ The website does NOT provide:
 
 * Customer authentication
 * Customer accounts
-* Shopping cart
-* Checkout
+* Online/gateway payment (the cart and order submission above are not a checkout/payment system — no payment is ever collected on the site)
 * Payment gateway
 * QRIS
 * Online payment
@@ -79,6 +80,24 @@ The website does NOT provide:
 * Social feed
 
 Do not introduce these features unless explicitly requested.
+
+**Cart/checkout terminology, revised 2026-09-02 (Milestone 4 — direct client
+requirement change, superseding the earlier "admin-only cart" interpretation):**
+the public site now has a real customer-facing cart and self-service order
+submission. Keep these distinct:
+
+* **Public cart** — client-side only (never persisted server-side, never a
+  DB table), lets a customer assemble products/quantities before submitting.
+* **Order submission ("checkout")** — the customer's cart becomes a real,
+  persisted `Sale` (`payment_status = PENDING`) via the *same* `createSale()`
+  path the admin cart already uses (`docs/05-database-design.md` Section 6,
+  `create_sale()` RPC) — collects name/phone/note only, never payment
+  details. This is not "checkout" in the payment-processing sense; no money
+  moves and no payment method is collected here.
+* **Admin cart** — unchanged, still exists, for an admin composing a sale on
+  a customer's behalf (e.g. a phone-in order).
+* **Invoice / WhatsApp** — unchanged: generated from the persisted sale
+  after creation, sent manually, payment confirmed manually by an admin.
 
 ---
 

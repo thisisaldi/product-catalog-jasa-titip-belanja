@@ -330,8 +330,7 @@ The website does NOT:
 
 * Process payments.
 * Verify payments.
-* Provide checkout.
-* Provide a shopping cart.
+* Provide payment checkout (the cart/order-submission flow in Section 28a is not this).
 * Integrate payment gateways.
 * Generate PDF invoices.
 
@@ -722,9 +721,7 @@ Do NOT introduce:
 
 * Customer login
 * Customer registration
-* Shopping cart
-* Checkout
-* Payment gateway
+* Payment checkout / payment gateway
 * QRIS
 * Online payment
 * Customer reviews
@@ -743,10 +740,35 @@ Discovery
   ↓
 Product Detail
   ↓
+Cart
+  ↓
+Order Submission
+  ↓
 WhatsApp
 ```
 
 ---
+
+## 28a. Customer Cart (added 2026-09-02, Milestone 4)
+
+A real customer-facing cart is now an explicit, approved requirement —
+superseding this document's earlier framing (Section 13/28) of "no cart" as
+a hard constraint. Design it as an integrated part of the boutique
+storefront, not a bolted-on e-commerce widget:
+
+* No account, no login, no saved-address book — the cart is a temporary,
+  client-side assembly step only.
+* Keep it visually restrained and consistent with Section 24's component
+  system (Button, Badge, Modal/Bottom Sheet all already exist as the right
+  building blocks — a cart drawer/sheet is a natural extension, not a new
+  visual language).
+* Never show marketplace-style checkout chrome (coupon codes, shipping
+  calculators, saved payment methods) — the only inputs are name, phone,
+  and an optional note, then the customer is hand-off to WhatsApp exactly as
+  Section 13 already describes.
+* The cart and its "submit order" action must feel like part of the same
+  calm, curated experience as the rest of the catalog — not a generic
+  e-commerce checkout template.
 
 ## 29. Design Success Criteria
 

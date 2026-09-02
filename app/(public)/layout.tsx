@@ -1,5 +1,7 @@
 import { Header } from "@/components/shared/Header";
 import { Footer } from "@/components/shared/Footer";
+import { CartProvider } from "@/lib/cart/CartContext";
+import { CartDrawer } from "@/components/cart/CartDrawer";
 import { getPublicSettings } from "@/lib/catalog/queries";
 
 export default async function PublicLayout({ children }: { children: React.ReactNode }) {
@@ -11,10 +13,11 @@ export default async function PublicLayout({ children }: { children: React.React
   const whatsappNumber = settings?.whatsappNumber ?? "";
 
   return (
-    <>
+    <CartProvider>
       <Header whatsappNumber={whatsappNumber} />
       <main className="flex-1">{children}</main>
       <Footer whatsappNumber={whatsappNumber} />
-    </>
+      <CartDrawer />
+    </CartProvider>
   );
 }

@@ -5,6 +5,8 @@ import { ProductGallery } from "@/components/detail/ProductGallery";
 import { AvailabilityBadge } from "@/components/catalog/AvailabilityBadge";
 import { WhatsAppCTA } from "@/components/detail/WhatsAppCTA";
 import { StickyMobileCTA } from "@/components/detail/StickyMobileCTA";
+import { AddToCartButton } from "@/components/cart/AddToCartButton";
+import { Container } from "@/components/shared/Container";
 
 export default async function ProductDetailPage({
   params,
@@ -19,8 +21,8 @@ export default async function ProductDetailPage({
   }
 
   return (
-    <div className="mx-auto max-w-7xl px-4 py-8 pb-28 sm:px-6 sm:py-12 lg:px-8 lg:pb-12">
-      <div className="lg:grid lg:grid-cols-12 lg:gap-8">
+    <Container className="py-10 pb-32 sm:py-14 lg:pb-16">
+      <div className="lg:grid lg:grid-cols-12 lg:gap-12">
         <div className="lg:col-span-7">
           <ProductGallery
             images={product.images}
@@ -29,30 +31,36 @@ export default async function ProductDetailPage({
           />
         </div>
 
-        <div className="mt-6 lg:col-span-5 lg:mt-0">
-          <div className="lg:sticky lg:top-24">
-            <span className="text-sm font-medium uppercase tracking-wide text-text-secondary">
+        <div className="mt-8 lg:col-span-5 lg:mt-0">
+          <div className="lg:sticky lg:top-28">
+            <span className="text-sm font-medium uppercase tracking-wider text-text-secondary">
               {product.brand.name}
             </span>
-            <h1 className="mt-1 text-lg font-medium leading-snug text-text-primary md:text-xl">
+            <h1 className="mt-2 font-serif text-2xl leading-snug text-text-primary md:text-3xl">
               {product.name}
             </h1>
-            <p className="mt-2 text-xl font-semibold text-text-primary">
+            <p className="mt-3 text-2xl font-semibold text-text-primary">
               {formatPrice(product.price)}
             </p>
-            <div className="mt-2">
+            <div className="mt-3">
               <AvailabilityBadge available={product.available} size="base" />
             </div>
 
             {product.description && (
-              <div className="mt-6 border-t border-border pt-6">
+              <div className="mt-7 border-t border-border pt-7">
                 <p className="max-w-[65ch] text-base leading-relaxed text-text-secondary">
                   {product.description}
                 </p>
               </div>
             )}
 
-            <div className="mt-6">
+            <div className="mt-8 flex flex-col gap-3">
+              {product.available && (
+                <AddToCartButton
+                  product={product}
+                  className="w-full rounded-full border border-accent px-6 py-3.5 text-base font-medium text-accent hover:bg-accent-soft lg:w-auto"
+                />
+              )}
               <WhatsAppCTA
                 phoneNumber={settings.whatsappNumber}
                 orderMessageTemplate={settings.orderMessageTemplate}
@@ -67,6 +75,6 @@ export default async function ProductDetailPage({
       </div>
 
       <StickyMobileCTA settings={settings} product={product} />
-    </div>
+    </Container>
   );
 }

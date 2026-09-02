@@ -220,6 +220,47 @@ The public catalog MUST NOT require authentication.
 
 ---
 
+## 5.1a Customer Cart and Order Submission
+
+**Added 2026-09-02 (Milestone 4) — supersedes any earlier reading of this
+document as excluding a customer-facing cart.** The client explicitly
+requested a real public cart and self-service order flow; this section is
+the resolved requirement, not a silent reinterpretation.
+
+The public site MUST provide:
+
+* A client-side cart (not persisted server-side, not a database table) that
+  lets a customer add products, adjust quantity, and remove items while
+  browsing.
+* At most one cart line per product — adding an already-in-cart product again
+  increases its quantity rather than creating a second line.
+* A visible cart indicator (item count) reachable from any public page.
+* An order-submission action that collects customer name, phone number, and
+  an optional note only — never payment details, never an account/password.
+* On submission, the cart is turned into a real, persisted `Sale` via the
+  same server-side sale-creation path Section 12.1 already defines
+  (`payment_status = PENDING`, inventory `OUT` recorded atomically,
+  `invoice_number` generated) — a customer-initiated sale is not a separate
+  mechanism from an admin-initiated one, only a different entry point into
+  the same authoritative operation.
+* After successful submission, the invoice text and WhatsApp CTA (Section 7)
+  are presented so the customer can send the prepared message manually.
+
+This is **not** checkout in the payment sense. No payment gateway, no card
+or bank details, no payment confirmation happens here — `payment_status`
+still starts `PENDING` and is still moved to `PAID` only by a manual admin
+action (Section 12.1), unchanged. Only the *order-initiation* step moves
+from "admin re-enters what the customer said over WhatsApp" to "customer
+submits it directly"; the manual payment conversation and verification in
+Section 12.1 are otherwise unchanged.
+
+The public site MUST NOT expose exact stock quantities on the cart or add-
+to-cart control — only the existing two-state availability label (Section
+16 design brief / Section 5.4 of `04-system-design.md`) gates whether a
+product can be added.
+
+---
+
 # 6. Product Detail
 
 A product detail page SHOULD contain:
@@ -600,6 +641,8 @@ WhatsApp CTA should remain visually prominent on product detail pages.
 * Product availability.
 * WhatsApp CTA.
 * Pre-filled WhatsApp message.
+* Customer cart (client-side order composition — Section 5.1a).
+* Customer self-service order submission (creates a PENDING sale — Section 5.1a).
 * Admin access control (no login — Section 13).
 * Product CRUD.
 * Category CRUD.
@@ -616,8 +659,7 @@ WhatsApp CTA should remain visually prominent on product detail pages.
 * Customer authentication.
 * Customer accounts.
 * Admin login / username / password / PIN (Section 13 — access control without authentication).
-* Shopping cart.
-* Online checkout.
+* Online/payment checkout (the customer cart and order submission in Section 5.1a are not a checkout system — no payment is collected on the site).
 * Payment gateway.
 * QRIS integration.
 * Automated payment verification.

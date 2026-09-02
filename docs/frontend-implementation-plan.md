@@ -27,7 +27,7 @@ Per `04-system-design.md` §7.1/7.4, admin lives on a separate subdomain (`admin
 
 Category/brand/availability filtering and search are **not** separate routes. They are query-string state on `/` (`?q=&kategori=&merek=&ketersediaan=&cursor=`), matching the design brief's single catalog IA (`02` §8: `Catalog → Search / Category Filter / Brand Filter → Product Detail`, no category/brand landing pages defined anywhere in `01`–`03`). Query params are kept shareable/back-button-safe (`router.replace` on filter change) as a low-cost UX default, not a new requirement.
 
-No route exists for cart, checkout, account, wishlist, or reviews — explicitly excluded (`01` §17, `CLAUDE.md` §2).
+No route exists for account, wishlist, or reviews — explicitly excluded (`01` §17, `CLAUDE.md` §2). The cart is client-side state (no dedicated route required — it renders as a drawer/sheet reachable from any page); order submission is a Server Action, not a page (`01` §5.1a, Milestone 4).
 
 ### 1.3 Admin domain (`admin.{domain}`)
 
@@ -215,7 +215,7 @@ Minimal per `02` §23 (area exists, content undefined elsewhere) — see §14 De
 - **Product detail:** Full spec-driven layout (§3.2 above); availability resolved server-side into exactly two labels, `is_manually_unavailable` and raw `cached_stock` are never sent to the client as separate fields (`04` §5.4, `05` §3.2/§11.1) — the server data-fetch layer must select only the resolved `available: boolean`, never `SELECT *`.
 - **WhatsApp actions:** `<WhatsAppCTA />` resolves number + template from settings data passed down from a server fetch (never hardcoded, never a raw client-side `settings` table read — `05` §7.2/§11.1 requires the resolved link/fields only, via a narrow server-side helper, not a public `SELECT * FROM settings`).
 
-No wishlist, cart, checkout, ratings, or discounts anywhere in this surface (`01` §17, `02` §28, `CLAUDE.md` §2) — confirmed absent from every component/page above.
+No wishlist, ratings, discounts, or payment checkout anywhere in this surface (`01` §17, `02` §28, `CLAUDE.md` §2). The cart and order submission (`01` §5.1a, Milestone 4) are the one exception to "no cart" in this document's earlier passes — client-side cart state, order submission via the existing `createSale()` path, never a payment flow.
 
 ---
 

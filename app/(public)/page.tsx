@@ -1,4 +1,5 @@
 import { CatalogView } from "@/components/catalog/CatalogView";
+import { Container } from "@/components/shared/Container";
 import { getActiveBrands, getActiveCategories, getCatalogPage } from "@/lib/catalog/queries";
 
 export default async function CatalogPage({
@@ -16,12 +17,15 @@ export default async function CatalogPage({
   ]);
 
   return (
-    <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 sm:py-10 lg:px-8">
-      <section className="max-w-2xl">
-        <h1 className="text-2xl font-semibold text-text-primary">Katalog Kurasi Kami</h1>
-        <p className="mt-2 text-text-secondary">
+    <Container className="py-10 sm:py-14">
+      <section className="max-w-xl">
+        <p className="font-serif text-sm italic text-accent">Koleksi Pilihan</p>
+        <h1 className="mt-2 font-serif text-3xl text-text-primary sm:text-4xl">
+          Katalog Kurasi Kami
+        </h1>
+        <p className="mt-3 text-base leading-relaxed text-text-secondary">
           Produk pilihan dari berbagai brand, untuk kamu yang suka belanja tenang tanpa ribet.
-          Cek ketersediaan, lalu lanjutkan obrolan lewat WhatsApp.
+          Tambahkan ke keranjang, lalu lanjutkan lewat WhatsApp.
         </p>
       </section>
 
@@ -33,6 +37,6 @@ export default async function CatalogPage({
         brands={brands}
         initialQuery={initialQuery}
       />
-    </div>
+    </Container>
   );
 }
