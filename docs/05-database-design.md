@@ -63,10 +63,10 @@ Replaces the Supabase-Auth-backed `users` table from v1.1, per `04-system-design
 | `label` | `text` | NOT NULL | — | | Human-readable device/credential name, e.g. `"Owner's Phone"`, `"Store Laptop"`, `"Admin Phone 1"` — admin-entered at issuance, purely descriptive |
 | `token_hash` | `text` | NOT NULL | — | UNIQUE | SHA-256 (or equivalent) hash of the bootstrap secret; the plaintext secret is shown once at issuance and never stored |
 | `created_at` | `timestamptz` | NOT NULL | `now()` | | When this credential was issued |
-| `expires_at` | `timestamptz` | NOT NULL | — | | Hard expiry (e.g. `created_at + 90 days`); past this, the credential is invalid regardless of `revoked_at` — forces periodic re-bootstrap rather than indefinite validity |
+| `expires_at` | `timestamptz` | NULL | — | | Optional hard expiry. `NULL` = permanent credential, never expires on its own (2026-09-03: superseded the earlier mandatory 90-day expiry — the admin access model is now no-time-limit by default). When set, past this timestamp the credential is invalid regardless of `revoked_at`. |
 | `revoked_at` | `timestamptz` | NULL | — | | Set when an admin manually revokes this credential (lost device, staff departure); `NULL` = not revoked |
 
-A credential is valid only when `revoked_at IS NULL AND expires_at > now()` — checked on every admin request by the access-control middleware (Section 18), not just at bootstrap time, so a mid-session revocation takes effect immediately rather than waiting for the cookie to expire.
+A credential is valid only when `revoked_at IS NULL AND (expires_at IS NULL OR expires_at > now())` — checked on every admin request by the access-control middleware (Section 18), not just at bootstrap time, so a mid-session revocation takes effect immediately rather than waiting for the cookie to expire.
 
 **No `name`/`email`/identity fields** — deliberately, per the task's distinction: this registers *a device/credential*, not *a person*. If the business later wants to know who physically used a shared device, that's a free-text field on the mutation itself (e.g. a `note`), not an identity system layered onto this table.
 
@@ -699,29 +699,35 @@ End-to-end flow this schema supports, per `04-system-design.md` Section 7 (no co
    - Application generates a random secret S (e.g. 32 bytes, cryptographically random).
    - Application computes token_hash = SHA-256(S).
    - INSERT INTO admin_access_tokens (label, token_hash, expires_at)
-     VALUES (:label, :token_hash, now() + interval '90 days');
+     VALUES (:label, :token_hash, :expires_at_or_null);
+     `expires_at` is `NULL` by default (permanent credential, no time limit,
+     2026-09-03) — an admin may instead pass an explicit future timestamp to
+     issue a temporary credential.
    - The plaintext bootstrap URL (containing S) is shown once and handed to the
      new device's user (e.g. read aloud, shown on screen) — S itself is never stored.
 
 2. Bootstrap (one-time per device, or whenever the 30-day cookie session expires)
    Staff visits /access/{S} on the admin subdomain:
    - Server computes SHA-256(S) and looks up admin_access_tokens WHERE token_hash = :hash.
-   - Reject (generic 404, Section 17.1) if no match, or revoked_at IS NOT NULL, or expires_at <= now().
+   - Reject (generic 404, Section 17.1) if no match, or revoked_at IS NOT NULL,
+     or (expires_at IS NOT NULL AND expires_at <= now()).
    - On success: issue a signed, httpOnly, Secure, SameSite=Strict cookie containing
      { token_id: admin_access_tokens.id, issued_at }, signed with a server-only HMAC
      secret (env var, unrelated to token_hash). Cookie max-age is a FIXED 30 days
      (locked 2026-09-01 — not a range), further capped down to the credential's
-     remaining time-to-expires_at if less than 30 days of credential validity remain.
-     The credential itself (expires_at, e.g. 90 days from issuance) and the cookie
-     session (always 30 days per issuance) are two independent lifetimes — a device
-     re-bootstraps with the same secret S as needed within the credential's own
-     expires_at window, each time getting a fresh 30-day cookie.
+     remaining time-to-expires_at only when the credential has an expiry and less
+     than 30 days of validity remain; a permanent (`expires_at IS NULL`) credential
+     always gets the full 30-day cookie.
+     The credential's own optional expiry and the cookie session (always up to
+     30 days per issuance) are two independent lifetimes — a device re-bootstraps
+     with the same secret S as needed within the credential's own validity window
+     (unbounded if permanent), each time getting a fresh cookie.
    - Redirect into the admin panel. No form was ever shown.
 
 3. Subsequent admin requests (every request to the admin subdomain)
    - Middleware reads the signed cookie, verifies the HMAC signature (rejects tampering
      without a DB hit), then looks up admin_access_tokens WHERE id = :token_id AND
-     revoked_at IS NULL AND expires_at > now().
+     revoked_at IS NULL AND (expires_at IS NULL OR expires_at > now()).
    - Any failure -> generic 404 (Section 17.1), never a distinguishing 401/403 that would
      confirm the admin surface exists to an unauthenticated prober.
    - Success -> request proceeds to the route/action, with token_id available to it.
@@ -741,7 +747,7 @@ End-to-end flow this schema supports, per `04-system-design.md` Section 7 (no co
 
 - **Generic 404, not 403/401,** on any invalid/expired/revoked/missing credential — the admin surface never confirms its own existence to an unauthenticated request.
 - **Per-device revocation** — one compromised/lost device is one `UPDATE`, not a rotation affecting every other credential (Section 2.1).
-- **Hard expiry** (`expires_at`) forces periodic re-bootstrap regardless of `revoked_at`, bounding how long a leaked-but-not-yet-detected credential stays valid. **Fixed 30-day cookie session lifetime** (locked 2026-09-01) forces re-bootstrap on that shorter cadence regardless of the credential's own longer `expires_at`, and revocation invalidates the credential — and any cookie session derived from it — immediately on the next request, independent of both lifetimes (step 3, step 5 above).
+- **Optional hard expiry** (`expires_at`, `NULL` = permanent, 2026-09-03) forces periodic re-bootstrap for credentials that set one, bounding how long a leaked-but-not-yet-detected credential stays valid; a permanent credential relies on revocation as its only expiry mechanism. **Fixed 30-day cookie session lifetime** (locked 2026-09-01) forces re-bootstrap on that shorter cadence regardless of the credential's own expiry (or lack of one), and revocation invalidates the credential — and any cookie session derived from it — immediately on the next request, independent of both lifetimes (step 3, step 5 above).
 - **`noindex`/`robots.txt` disallow and `Referrer-Policy: no-referrer`** on the admin subdomain — outside this document's schema scope but restated here as a requirement this schema must not undermine (e.g. no admin data ever rendered in a way that would be indexable or leak via referrer).
 - **Rate limiting on repeated invalid bootstrap attempts is best-effort v1** (in-memory/edge counter, no external service such as Upstash Redis added for v1) — accepted limitation: does not share state consistently across concurrent serverless/edge instances, so it is not a globally accurate rate limiter. Acceptable because it is one layer among several (256-bit token entropy, hashed storage, expiry, revocation, generic 404) rather than the sole defense against brute force, which is already computationally infeasible at that entropy regardless of rate limiting. Full analysis in `06-security.md` Section 13.
 - None of the above is a database concern to enforce beyond what's already in Section 2.1's constraints (`UNIQUE token_hash`, `expires_at`/`revoked_at` columns) — the rest is middleware/route behavior, listed here only so the schema's reasoning stays traceable to the access-control requirement it exists to support.
@@ -754,7 +760,7 @@ End-to-end flow this schema supports, per `04-system-design.md` Section 7 (no co
 
 Four decisions locked and threaded through every relevant document:
 - `invoice_number`: added to `sales`, server-generated via a Postgres sequence (Section 6.1a), `NOT NULL UNIQUE`, never client-suppliable.
-- Admin session cookie lifetime: fixed at 30 days (Section 17), distinct from and independent of the credential's own `expires_at` (e.g. 90 days).
+- Admin session cookie lifetime: fixed at 30 days (Section 17), distinct from and independent of the credential's own `expires_at` (optional, `NULL` = permanent by default as of 2026-09-03).
 - Transition attribution: `paid_at`/`paid_by` and `cancelled_at`/`cancelled_by` added to `sales` (Section 2.7, 6.3, 6.4), closing the gap `05` v1.4 had deliberately left open rather than silently deciding — no separate audit-log table introduced.
 - Rate limiting: confirmed best-effort in-memory/edge for v1, no external service added, limitation documented explicitly (Section 17.1).
 

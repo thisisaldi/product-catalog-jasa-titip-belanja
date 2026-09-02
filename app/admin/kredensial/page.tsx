@@ -37,7 +37,7 @@ export default async function CredentialsPage() {
                     {new Date(c.createdAt).toLocaleDateString("id-ID")}
                   </td>
                   <td className="py-2 pr-4 text-sm text-text-secondary">
-                    {new Date(c.expiresAt).toLocaleDateString("id-ID")}
+                    {c.expiresAt ? new Date(c.expiresAt).toLocaleDateString("id-ID") : "Permanen"}
                   </td>
                   <td className="py-2 pr-4 text-sm">
                     {isRevoked ? (

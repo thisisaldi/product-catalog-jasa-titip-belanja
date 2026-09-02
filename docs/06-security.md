@@ -82,7 +82,8 @@ Restated in security terms from `04` §7.1 and `05` §17 (which remain the archi
    →  reject (generic 404) if no match / revoked / expired
    →  issue signed httpOnly Secure SameSite=Strict cookie
 3. Every admin request: middleware verifies cookie signature, then re-checks
-   revoked_at IS NULL AND expires_at > now() against the DB (not cache-only)
+   revoked_at IS NULL AND (expires_at IS NULL OR expires_at > now()) against
+   the DB (not cache-only)
 4. Protected route/action runs, using service_role for the actual mutation
 5. Revocation: UPDATE admin_access_tokens SET revoked_at = now() — takes effect
    on the credential's very next request, not on next cookie expiry
@@ -98,7 +99,7 @@ The bootstrap secret is generated with a cryptographically secure random source 
 
 ### 2.3 Token expiration
 
-`expires_at` (hard cap, e.g. 90 days from issuance per `05` §2.1) is checked on **every** request, not just at bootstrap — an expired credential stops working immediately, without requiring a revocation action. This bounds how long a leaked-but-undetected credential stays valid, independent of whether anyone notices the leak.
+`expires_at` is optional (`NULL` = permanent, the default as of 2026-09-03 per `05` §2.1); when set, it acts as a hard cap and is checked on **every** request, not just at bootstrap — an expired credential stops working immediately, without requiring a revocation action. This bounds how long a leaked-but-undetected credential stays valid, independent of whether anyone notices the leak. A permanent credential has no such bound and relies entirely on revocation (Section 2.4) if compromised.
 
 ### 2.4 Token revocation
 

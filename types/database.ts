@@ -17,7 +17,7 @@ export type Database = {
       admin_access_tokens: {
         Row: {
           created_at: string
-          expires_at: string
+          expires_at: string | null
           id: string
           label: string
           revoked_at: string | null
@@ -25,7 +25,7 @@ export type Database = {
         }
         Insert: {
           created_at?: string
-          expires_at: string
+          expires_at?: string | null
           id?: string
           label: string
           revoked_at?: string | null
@@ -33,7 +33,7 @@ export type Database = {
         }
         Update: {
           created_at?: string
-          expires_at?: string
+          expires_at?: string | null
           id?: string
           label?: string
           revoked_at?: string | null

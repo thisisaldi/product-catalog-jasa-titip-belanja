@@ -151,7 +151,7 @@ Append-only ledger. No `UPDATE`/`DELETE` in normal operation — corrections are
 | `label` | text, not null | human-readable device/credential name, e.g. `"Owner's Phone"`, `"Store Laptop"` — descriptive only |
 | `token_hash` | text, not null, unique | hash of the one-time bootstrap secret; plaintext is shown once at issuance, never stored |
 | `created_at` | timestamptz, not null, default `now()` | |
-| `expires_at` | timestamptz, not null | hard expiry forcing periodic re-bootstrap, independent of `revoked_at` |
+| `expires_at` | timestamptz, nullable | optional hard expiry forcing periodic re-bootstrap, independent of `revoked_at`; `NULL` = permanent, the default as of 2026-09-03 |
 | `revoked_at` | timestamptz, nullable | set to immediately invalidate this credential; `NULL` = active |
 
 No `password_hash`, no `email`, no `name`-as-identity — there is no credential type here beyond the hashed bootstrap secret itself, and no auth provider of any kind is delegated to. Full flow (issuance → bootstrap → cookie → middleware → `service_role` mutation) is Section 7.1; exact schema detail lives in `05-database-design.md` Section 2.1/17.

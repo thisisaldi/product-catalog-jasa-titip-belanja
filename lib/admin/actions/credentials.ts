@@ -10,7 +10,7 @@ export type Credential = {
   id: string;
   label: string;
   createdAt: string;
-  expiresAt: string;
+  expiresAt: string | null;
   revokedAt: string | null;
   isExpired: boolean;
 };
@@ -30,11 +30,16 @@ export async function listCredentials(): Promise<Credential[]> {
     createdAt: t.created_at,
     expiresAt: t.expires_at,
     revokedAt: t.revoked_at,
-    isExpired: new Date(t.expires_at).getTime() <= now,
+    isExpired: t.expires_at !== null && new Date(t.expires_at).getTime() <= now,
   }));
 }
 
-/** Returns the one-time bootstrap secret — shown once, never stored (05 Section 2.1). */
+/**
+ * Returns the one-time bootstrap secret — shown once, never stored (05
+ * Section 2.1). Permanent by default (`expires_at = NULL`) — the admin
+ * access model is now no-time-limit; pass `expiresInDays` for a temporary
+ * credential instead.
+ */
 export async function issueCredential(
   _prev: ActionResult & { secret?: string },
   formData: FormData,
@@ -44,6 +49,14 @@ export async function issueCredential(
   if (!label) return { error: "Label wajib diisi." };
   if (label.length > 200) return { error: "Label maksimal 200 karakter." };
 
+  const expiresInDaysRaw = String(formData.get("expiresInDays") ?? "").trim();
+  let expiresAt: string | null = null;
+  if (expiresInDaysRaw) {
+    const days = Number(expiresInDaysRaw);
+    if (!Number.isFinite(days) || days <= 0) return { error: "Masa berlaku tidak valid." };
+    expiresAt = new Date(Date.now() + days * 24 * 60 * 60 * 1000).toISOString();
+  }
+
   const secret = generateBootstrapSecret();
   const tokenHash = await hashSecret(secret);
 
@@ -51,7 +64,7 @@ export async function issueCredential(
   const { error } = await supabase.from("admin_access_tokens").insert({
     label,
     token_hash: tokenHash,
-    expires_at: new Date(Date.now() + 90 * 24 * 60 * 60 * 1000).toISOString(),
+    expires_at: expiresAt,
   });
   if (error) return { error: "Gagal membuat kredensial. Coba lagi." };
 

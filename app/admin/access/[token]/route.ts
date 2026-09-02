@@ -22,14 +22,18 @@ export async function GET(request: NextRequest, context: { params: Promise<{ tok
 
   const now = Date.now();
   const isValid = Boolean(
-    tokenRow && !tokenRow.revoked_at && new Date(tokenRow.expires_at).getTime() > now,
+    tokenRow &&
+      !tokenRow.revoked_at &&
+      (tokenRow.expires_at === null || new Date(tokenRow.expires_at).getTime() > now),
   );
   if (!tokenRow || !isValid) {
     return new NextResponse(null, { status: 404 });
   }
 
-  const remainingSeconds = Math.floor((new Date(tokenRow.expires_at).getTime() - now) / 1000);
-  const maxAge = Math.min(SESSION_MAX_AGE_SECONDS, remainingSeconds);
+  const maxAge =
+    tokenRow.expires_at === null
+      ? SESSION_MAX_AGE_SECONDS
+      : Math.min(SESSION_MAX_AGE_SECONDS, Math.floor((new Date(tokenRow.expires_at).getTime() - now) / 1000));
 
   const cookieValue = await createSessionCookieValue(tokenRow.id);
   // Build the redirect from the actual Host header, not request.url/nextUrl —

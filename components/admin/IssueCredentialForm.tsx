@@ -9,20 +9,35 @@ export function IssueCredentialForm() {
 
   return (
     <div>
-      <form action={formAction} className="flex items-end gap-2">
-        <div className="flex-1">
-          <label htmlFor="label" className="mb-1 block text-sm font-medium">
-            Label perangkat
+      <form action={formAction} className="flex flex-col gap-3">
+        <div className="flex items-end gap-2">
+          <div className="flex-1">
+            <label htmlFor="label" className="mb-1 block text-sm font-medium">
+              Label perangkat
+            </label>
+            <input
+              id="label"
+              name="label"
+              placeholder='mis. "HP Pemilik"'
+              required
+              className="w-full rounded-md border border-border px-3 py-2 text-sm focus:border-accent focus:outline-none focus:ring-2 focus:ring-accent"
+            />
+          </div>
+          <SubmitButton pendingText="Membuat...">Buat Kredensial</SubmitButton>
+        </div>
+        <div>
+          <label htmlFor="expiresInDays" className="mb-1 block text-sm font-medium">
+            Masa berlaku (hari)
           </label>
           <input
-            id="label"
-            name="label"
-            placeholder='mis. "HP Pemilik"'
-            required
+            id="expiresInDays"
+            name="expiresInDays"
+            type="number"
+            min={1}
+            placeholder="Kosongkan untuk permanen (tanpa batas waktu)"
             className="w-full rounded-md border border-border px-3 py-2 text-sm focus:border-accent focus:outline-none focus:ring-2 focus:ring-accent"
           />
         </div>
-        <SubmitButton pendingText="Membuat...">Buat Kredensial</SubmitButton>
       </form>
       {state.error && <p className="mt-2 text-sm text-sold-out">{state.error}</p>}
       {state.secret && (
