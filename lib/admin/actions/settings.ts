@@ -71,7 +71,7 @@ export async function updateSettings(_prev: ActionResult, formData: FormData): P
     .eq("id", 1);
   if (error) return { error: "Gagal menyimpan pengaturan. Coba lagi." };
 
-  revalidatePath("/admin/pengaturan");
+  revalidatePath("/x7k9m2/pengaturan");
   revalidatePath("/", "layout");
   return { success: true };
 }

@@ -36,20 +36,18 @@ export async function GET(request: NextRequest, context: { params: Promise<{ tok
       : Math.min(SESSION_MAX_AGE_SECONDS, Math.floor((new Date(tokenRow.expires_at).getTime() - now) / 1000));
 
   const cookieValue = await createSessionCookieValue(tokenRow.id);
-  // Build the redirect from the actual Host header, not request.url/nextUrl —
-  // those reflect the internally rewritten /admin/... URL (middleware
-  // rewrites admin.<domain> to /admin/*, Section 7.1), which resolves back
-  // to the server's own bind address rather than the admin hostname the
-  // client actually requested.
-  const host = request.headers.get("host") ?? request.nextUrl.host;
-  const protocol = request.headers.get("x-forwarded-proto") ?? request.nextUrl.protocol.replace(":", "");
-  const response = NextResponse.redirect(new URL("/", `${protocol}://${host}`));
+  // Path-based admin (04 Section 7.1, migrated 2026-09-04): admin and public
+  // share one hostname, so request.nextUrl reflects the real requested URL
+  // directly — no hostname rewrite to account for.
+  const response = NextResponse.redirect(new URL("/x7k9m2/", request.nextUrl));
   response.cookies.set(ADMIN_SESSION_COOKIE, cookieValue, {
     httpOnly: true,
     secure: process.env.NODE_ENV === "production",
     sameSite: "strict",
     maxAge,
-    path: "/",
+    // Scoped to the admin path only (06-security.md Section 2.5) — the
+    // browser never attaches this cookie to a public-route request.
+    path: "/x7k9m2",
   });
   return response;
 }

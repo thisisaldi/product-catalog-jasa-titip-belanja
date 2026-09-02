@@ -95,7 +95,7 @@ export async function uploadProductImage(productId: string, formData: FormData):
     return { error: "Gagal menyimpan data gambar. Coba lagi." };
   }
 
-  revalidatePath(`/admin/produk/${productId}`);
+  revalidatePath(`/x7k9m2/produk/${productId}`);
   return { success: true };
 }
 
@@ -143,7 +143,7 @@ export async function replaceProductImage(
   // file, not a request failure (05 Section 4a.7's explicit tradeoff).
   await supabase.storage.from(PRODUCT_IMAGES_BUCKET).remove([existing.url]);
 
-  revalidatePath(`/admin/produk/${productId}`);
+  revalidatePath(`/x7k9m2/produk/${productId}`);
   return { success: true };
 }
 
@@ -177,7 +177,7 @@ export async function deleteProductImage(imageId: string, productId: string): Pr
     }
   }
 
-  revalidatePath(`/admin/produk/${productId}`);
+  revalidatePath(`/x7k9m2/produk/${productId}`);
   return { success: true };
 }
 
@@ -190,7 +190,7 @@ export async function setPrimaryImage(imageId: string, productId: string): Promi
   await supabase.from("product_images").update({ is_primary: false }).eq("product_id", productId).eq("is_primary", true);
   const { error } = await supabase.from("product_images").update({ is_primary: true }).eq("id", imageId);
   if (error) return { error: "Gagal mengatur gambar utama. Coba lagi." };
-  revalidatePath(`/admin/produk/${productId}`);
+  revalidatePath(`/x7k9m2/produk/${productId}`);
   return { success: true };
 }
 
@@ -208,7 +208,7 @@ export async function reorderProductImages(
       .eq("product_id", productId);
     if (error) return { error: "Gagal mengubah urutan gambar. Coba lagi." };
   }
-  revalidatePath(`/admin/produk/${productId}`);
+  revalidatePath(`/x7k9m2/produk/${productId}`);
   return { success: true };
 }
 
@@ -266,6 +266,6 @@ export async function addExampleImages(productId: string, categorySlug: string):
 
   if (added === 0) return { error: "Gagal mengambil gambar contoh. Coba lagi." };
 
-  revalidatePath(`/admin/produk/${productId}`);
+  revalidatePath(`/x7k9m2/produk/${productId}`);
   return { success: true };
 }

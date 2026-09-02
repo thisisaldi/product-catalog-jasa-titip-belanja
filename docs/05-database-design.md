@@ -707,7 +707,9 @@ End-to-end flow this schema supports, per `04-system-design.md` Section 7 (no co
      new device's user (e.g. read aloud, shown on screen) — S itself is never stored.
 
 2. Bootstrap (one-time per device, or whenever the 30-day cookie session expires)
-   Staff visits /access/{S} on the admin subdomain:
+   Staff visits /x7k9m2/access/{S} (2026-09-04: obscure path on the public
+   hostname, not a separate admin subdomain — the path is defense-in-depth
+   only and grants nothing by itself, `04` §7.1):
    - Server computes SHA-256(S) and looks up admin_access_tokens WHERE token_hash = :hash.
    - Reject (generic 404, Section 17.1) if no match, or revoked_at IS NOT NULL,
      or (expires_at IS NOT NULL AND expires_at <= now()).
@@ -724,7 +726,7 @@ End-to-end flow this schema supports, per `04-system-design.md` Section 7 (no co
      (unbounded if permanent), each time getting a fresh cookie.
    - Redirect into the admin panel. No form was ever shown.
 
-3. Subsequent admin requests (every request to the admin subdomain)
+3. Subsequent admin requests (every request under /x7k9m2/*)
    - Middleware reads the signed cookie, verifies the HMAC signature (rejects tampering
      without a DB hit), then looks up admin_access_tokens WHERE id = :token_id AND
      revoked_at IS NULL AND (expires_at IS NULL OR expires_at > now()).
@@ -748,7 +750,7 @@ End-to-end flow this schema supports, per `04-system-design.md` Section 7 (no co
 - **Generic 404, not 403/401,** on any invalid/expired/revoked/missing credential — the admin surface never confirms its own existence to an unauthenticated request.
 - **Per-device revocation** — one compromised/lost device is one `UPDATE`, not a rotation affecting every other credential (Section 2.1).
 - **Optional hard expiry** (`expires_at`, `NULL` = permanent, 2026-09-03) forces periodic re-bootstrap for credentials that set one, bounding how long a leaked-but-not-yet-detected credential stays valid; a permanent credential relies on revocation as its only expiry mechanism. **Fixed 30-day cookie session lifetime** (locked 2026-09-01) forces re-bootstrap on that shorter cadence regardless of the credential's own expiry (or lack of one), and revocation invalidates the credential — and any cookie session derived from it — immediately on the next request, independent of both lifetimes (step 3, step 5 above).
-- **`noindex`/`robots.txt` disallow and `Referrer-Policy: no-referrer`** on the admin subdomain — outside this document's schema scope but restated here as a requirement this schema must not undermine (e.g. no admin data ever rendered in a way that would be indexable or leak via referrer).
+- **`noindex` metadata on the `/x7k9m2` route segment and `Referrer-Policy: no-referrer`** (2026-09-04: scoped to the admin path segment, not a whole subdomain, since admin and public now share one hostname) — outside this document's schema scope but restated here as a requirement this schema must not undermine (e.g. no admin data ever rendered in a way that would be indexable or leak via referrer); a courtesy signal to crawlers, never the security boundary.
 - **Rate limiting on repeated invalid bootstrap attempts is best-effort v1** (in-memory/edge counter, no external service such as Upstash Redis added for v1) — accepted limitation: does not share state consistently across concurrent serverless/edge instances, so it is not a globally accurate rate limiter. Acceptable because it is one layer among several (256-bit token entropy, hashed storage, expiry, revocation, generic 404) rather than the sole defense against brute force, which is already computationally infeasible at that entropy regardless of rate limiting. Full analysis in `06-security.md` Section 13.
 - None of the above is a database concern to enforce beyond what's already in Section 2.1's constraints (`UNIQUE token_hash`, `expires_at`/`revoked_at` columns) — the rest is middleware/route behavior, listed here only so the schema's reasoning stays traceable to the access-control requirement it exists to support.
 

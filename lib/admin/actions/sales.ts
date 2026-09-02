@@ -60,9 +60,9 @@ export async function createSale(input: CreateSaleInput): Promise<CreateSaleResu
   }
 
   const sale = data[0];
-  revalidatePath("/admin/penjualan");
-  revalidatePath("/admin/produk");
-  revalidatePath("/admin/inventaris");
+  revalidatePath("/x7k9m2/penjualan");
+  revalidatePath("/x7k9m2/produk");
+  revalidatePath("/x7k9m2/inventaris");
   return { success: true, saleId: sale.id, invoiceNumber: sale.invoice_number };
 }
 
@@ -86,10 +86,10 @@ export async function cancelSale(saleId: string): Promise<ActionResult> {
     return { error: "Penjualan tidak dapat dibatalkan (sudah dibayar, sudah dibatalkan, atau tidak ditemukan)." };
   }
 
-  revalidatePath("/admin/penjualan");
-  revalidatePath(`/admin/penjualan/${saleId}`);
-  revalidatePath("/admin/produk");
-  revalidatePath("/admin/inventaris");
+  revalidatePath("/x7k9m2/penjualan");
+  revalidatePath(`/x7k9m2/penjualan/${saleId}`);
+  revalidatePath("/x7k9m2/produk");
+  revalidatePath("/x7k9m2/inventaris");
   return { success: true };
 }
 
@@ -115,7 +115,7 @@ export async function markSalePaid(saleId: string): Promise<ActionResult> {
   if (error) return { error: "Gagal menandai lunas. Coba lagi." };
   if (!data) return { error: "Penjualan sudah lunas atau tidak ditemukan." };
 
-  revalidatePath("/admin/penjualan");
-  revalidatePath(`/admin/penjualan/${saleId}`);
+  revalidatePath("/x7k9m2/penjualan");
+  revalidatePath(`/x7k9m2/penjualan/${saleId}`);
   return { success: true };
 }

@@ -21,7 +21,7 @@ export default async function SalesPage({
     <div>
       <div className="flex items-center justify-between">
         <h1 className="text-xl font-semibold">Penjualan</h1>
-        <Link href="/penjualan/baru" className="rounded-lg bg-accent px-4 py-2 text-sm font-medium text-white">
+        <Link href="/x7k9m2/penjualan/baru" className="rounded-lg bg-accent px-4 py-2 text-sm font-medium text-white">
           Catat Penjualan
         </Link>
       </div>
@@ -110,7 +110,7 @@ export default async function SalesPage({
                     {SALE_STATUS_LABEL[sale.saleStatus]}
                   </td>
                   <td className="py-3">
-                    <Link href={`/penjualan/${sale.id}`} className="text-sm text-accent hover:underline">
+                    <Link href={`/x7k9m2/penjualan/${sale.id}`} className="text-sm text-accent hover:underline">
                       Detail
                     </Link>
                   </td>

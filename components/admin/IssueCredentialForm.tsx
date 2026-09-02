@@ -43,9 +43,9 @@ export function IssueCredentialForm() {
       {state.secret && (
         <div className="mt-3 rounded-lg border border-accent bg-accent-soft p-3 text-sm">
           <p className="font-medium">Tautan bootstrap (tampil sekali, salin sekarang):</p>
-          <code className="mt-1 block break-all text-xs">/access/{state.secret}</code>
+          <code className="mt-1 block break-all text-xs">/x7k9m2/access/{state.secret}</code>
           <p className="mt-1 text-xs text-text-secondary">
-            Tempel di belakang domain admin, mis. https://admin.namatoko.com/access/{state.secret}
+            Tempel di belakang domain toko, mis. https://namatoko.com/x7k9m2/access/{state.secret}
           </p>
         </div>
       )}

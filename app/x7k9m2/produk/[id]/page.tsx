@@ -49,7 +49,7 @@ export default async function EditProductPage({ params }: { params: Promise<{ id
           </div>
         </div>
         <div className="flex items-center gap-3">
-          <Link href={`/inventaris?produk=${id}`} className="text-sm text-accent hover:underline">
+          <Link href={`/x7k9m2/inventaris?produk=${id}`} className="text-sm text-accent hover:underline">
             Riwayat Stok
           </Link>
           <form action={archiveOrRestore}>

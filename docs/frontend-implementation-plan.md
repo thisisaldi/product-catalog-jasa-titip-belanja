@@ -14,9 +14,9 @@ This document translates the approved product/design/system specification into a
 
 ## 1. Route Architecture
 
-### 1.1 Domain split
+### 1.1 Route split
 
-Per `04-system-design.md` §7.1/7.4, admin lives on a separate subdomain (`admin.{domain}`), never `/admin/*` on the public domain. Two logical route trees, one per domain.
+Per `04-system-design.md` §7.1/7.4 (2026-09-04: moved off the separate `admin.{domain}` subdomain to a single-hostname obscure path), admin lives at `/x7k9m2/*` on the same hostname as the public site — not `/admin/*`, which no longer exists as a route. Two logical route trees, one hostname.
 
 ### 1.2 Public domain (`{domain}`)
 
@@ -29,25 +29,27 @@ Category/brand/availability filtering and search are **not** separate routes. Th
 
 No route exists for account, wishlist, or reviews — explicitly excluded (`01` §17, `CLAUDE.md` §2). The cart is client-side state (localStorage, no dedicated DB table) rendered at a dedicated `/keranjang` route rather than a drawer/sheet, so adding an item never interrupts browsing (Milestone 5); order submission happens inline on that page via a Server Action, not a separate page (`01` §5.1a).
 
-### 1.3 Admin domain (`admin.{domain}`)
+### 1.3 Admin path (`/x7k9m2/*`)
+
+`/x7k9m2` is an obscure static path, not a subdomain — defense in depth only, never treated as an authentication boundary (`04` §7.1). Filesystem route tree is `app/x7k9m2/*`, mapping directly to these URLs with no rewrite.
 
 | Route | Purpose |
 |---|---|
-| `/access/[token]` | One-time bootstrap link (`04` §7.1, `05` §17) — validates, sets cookie, redirects; not a page with UI beyond a loading/error state |
-| `/` | Dashboard — minimal landing (brief `02` §23 lists "Dashboard" as an area; no content is specified anywhere in `01`–`05`, see §14 Decisions) |
-| `/produk` | Product list/table |
-| `/produk/baru` | Create product |
-| `/produk/[id]` | Edit product (fields, images, read-only current stock) |
-| `/kategori` | Category list, create, archive/restore (`05` §3.3) |
-| `/merek` | Brand list, create, archive/restore (`05` §3.3) |
-| `/inventaris` | Inventory: current stock per product, stock in/out action, transaction history (filterable by product) |
-| `/penjualan` | Sales list (filters: `payment_status`, `sale_status`) |
-| `/penjualan/baru` | Record a new sale (multi-line-item form) |
-| `/penjualan/[id]` | Sale detail — mark paid, cancel (if eligible), generate/send invoice via WhatsApp |
-| `/pengaturan` | Settings — WhatsApp number, order/availability message templates |
-| `/kredensial` | Access-credential management — issue/revoke device tokens (`05` §2.1/§17); required by the schema but not laid out in `01`–`03`, see §14 Decisions |
+| `/x7k9m2/access/[token]` | One-time bootstrap link (`04` §7.1, `05` §17) — validates, sets cookie, redirects; not a page with UI beyond a loading/error state |
+| `/x7k9m2/` | Dashboard — minimal landing (brief `02` §23 lists "Dashboard" as an area; no content is specified anywhere in `01`–`05`, see §14 Decisions) |
+| `/x7k9m2/produk` | Product list/table |
+| `/x7k9m2/produk/baru` | Create product |
+| `/x7k9m2/produk/[id]` | Edit product (fields, images, read-only current stock) |
+| `/x7k9m2/kategori` | Category list, create, archive/restore (`05` §3.3) |
+| `/x7k9m2/merek` | Brand list, create, archive/restore (`05` §3.3) |
+| `/x7k9m2/inventaris` | Inventory: current stock per product, stock in/out action, transaction history (filterable by product) |
+| `/x7k9m2/penjualan` | Sales list (filters: `payment_status`, `sale_status`) |
+| `/x7k9m2/penjualan/baru` | Record a new sale (multi-line-item form) |
+| `/x7k9m2/penjualan/[id]` | Sale detail — mark paid, cancel (if eligible), generate/send invoice via WhatsApp |
+| `/x7k9m2/pengaturan` | Settings — WhatsApp number, order/availability message templates |
+| `/x7k9m2/kredensial` | Access-credential management — issue/revoke device tokens (`05` §2.1/§17); required by the schema but not laid out in `01`–`03`, see §14 Decisions |
 
-Every route under this tree (except `/access/[token]`) is gated by the Section 7 middleware — enforced at the edge, not per-page.
+Every route under this tree (except `/x7k9m2/access/[token]`) is gated by the Section 7 middleware — enforced at the edge, not per-page. `/admin/*` does not exist as a route and returns generic 404.
 
 ---
 
@@ -337,7 +339,7 @@ No playful illustrations or unnecessary animation anywhere (brief `02` §17/§21
 
 ## 13. Suggested Project Structure
 
-Single Next.js/TypeScript repository (App Router), domain-based routing rather than two separate codebases — the public and admin surfaces share the design-token/component-primitive layer (`03` §1) and the Supabase client setup, and splitting into two repos would duplicate both for no benefit at this project's size. Exact domain-to-route-group wiring (middleware `host`-based rewrite vs. Vercel multi-domain project config) is an implementation detail resolved when deployment is planned (`docs/07-deployment.md`, not yet written) — flagged in §14 since it has a small structural implication now.
+Single Next.js/TypeScript repository (App Router), path-based routing rather than two separate codebases or a separate admin subdomain (2026-09-04, `04` §7.1) — the public and admin surfaces share the design-token/component-primitive layer (`03` §1) and the Supabase client setup, and splitting into two repos would duplicate both for no benefit at this project's size. Admin lives at `app/x7k9m2/*`, mapping directly to `/x7k9m2/*` with no rewrite needed — middleware only gates the path, it does not rewrite hostnames.
 
 ```text
 app/
@@ -345,8 +347,8 @@ app/
     layout.tsx                 # public Header/Footer shell
     page.tsx                   # catalog home
     produk/[slug]/page.tsx     # product detail
-  (admin)/
-    layout.tsx                 # admin nav shell, applies only under admin.{domain}
+  x7k9m2/
+    layout.tsx                 # admin nav shell, applies only under /x7k9m2/*; sets noindex metadata
     access/[token]/route.ts    # bootstrap handler
     page.tsx                   # dashboard
     produk/page.tsx
@@ -362,7 +364,7 @@ app/
     kredensial/page.tsx
   api/                         # route handlers only where a Server Action doesn't fit
     ...
-middleware.ts                  # Section 7 access-control gate, applies to admin routes only
+middleware.ts                  # Section 7 access-control gate, applies to /x7k9m2/* only; returns generic 404 for /admin/*
 components/
   ui/                          # shadcn primitives (Button, Input, etc.)
   catalog/                     # ProductCard, ProductGrid, FilterSheet, SearchInput, ...

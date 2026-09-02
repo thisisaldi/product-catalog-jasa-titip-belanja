@@ -9,8 +9,8 @@ export type ActionResult = { error?: string; success?: true };
 type Table = "brands" | "categories";
 
 const PATH_BY_TABLE: Record<Table, string> = {
-  brands: "/admin/merek",
-  categories: "/admin/kategori",
+  brands: "/x7k9m2/merek",
+  categories: "/x7k9m2/kategori",
 };
 
 function slugify(name: string): string {

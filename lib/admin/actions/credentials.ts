@@ -68,7 +68,7 @@ export async function issueCredential(
   });
   if (error) return { error: "Gagal membuat kredensial. Coba lagi." };
 
-  revalidatePath("/admin/kredensial");
+  revalidatePath("/x7k9m2/kredensial");
   return { success: true, secret };
 }
 
@@ -80,6 +80,6 @@ export async function revokeCredential(id: string): Promise<ActionResult> {
     .update({ revoked_at: new Date().toISOString() })
     .eq("id", id);
   if (error) return { error: "Gagal mencabut kredensial. Coba lagi." };
-  revalidatePath("/admin/kredensial");
+  revalidatePath("/x7k9m2/kredensial");
   return { success: true };
 }

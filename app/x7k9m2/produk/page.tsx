@@ -11,7 +11,7 @@ export default async function AdminProductsPage() {
       <div className="flex items-center justify-between">
         <h1 className="text-xl font-semibold">Produk</h1>
         <Link
-          href="/produk/baru"
+          href="/x7k9m2/produk/baru"
           className="rounded-lg bg-accent px-4 py-2 text-sm font-medium text-white"
         >
           Tambah Produk
@@ -51,7 +51,7 @@ export default async function AdminProductsPage() {
                     <StatusBadge status={p.status} />
                   </td>
                   <td className="py-3">
-                    <Link href={`/produk/${p.id}`} className="text-sm text-accent hover:underline">
+                    <Link href={`/x7k9m2/produk/${p.id}`} className="text-sm text-accent hover:underline">
                       Kelola
                     </Link>
                   </td>

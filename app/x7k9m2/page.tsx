@@ -13,21 +13,21 @@ export default async function AdminDashboardPage() {
 
       <div className="mt-6 grid grid-cols-1 gap-4 sm:grid-cols-3">
         <Link
-          href="/produk"
+          href="/x7k9m2/produk"
           className="rounded-lg border border-border p-4 hover:border-accent"
         >
           <p className="text-2xl font-semibold">{stats.activeProducts}</p>
           <p className="text-sm text-text-secondary">Produk aktif</p>
         </Link>
         <Link
-          href="/inventaris"
+          href="/x7k9m2/inventaris"
           className="rounded-lg border border-border p-4 hover:border-accent"
         >
           <p className="text-2xl font-semibold text-sold-out">{stats.outOfStockCount}</p>
           <p className="text-sm text-text-secondary">Stok habis</p>
         </Link>
         <Link
-          href="/inventaris"
+          href="/x7k9m2/inventaris"
           className="rounded-lg border border-border p-4 hover:border-accent"
         >
           <p className="text-2xl font-semibold">{stats.lowStockCount}</p>

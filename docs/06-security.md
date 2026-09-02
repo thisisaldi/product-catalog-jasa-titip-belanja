@@ -111,7 +111,7 @@ The bootstrap secret is generated with a cryptographically secure random source 
 - `Secure` — never sent over plain HTTP; combined with HTTPS-only deployment (Section 19), the cookie never travels in cleartext.
 - `SameSite=Strict` — not sent on any cross-site request, including top-level cross-site navigation (stricter than `Lax`); this is the primary CSRF mitigation, analyzed fully in Section 11.
 - Signed (HMAC, server-only secret distinct from any token hash) — the cookie payload (`{ token_id, issued_at }`) cannot be forged or tampered with by a client; a modified cookie fails signature verification and is treated as absent.
-- Scoped to the admin subdomain only (`Domain`/`Path` restricted) — never set on the public catalog domain, so a public-site XSS (however unlikely, Section 12) has no admin cookie to steal in the first place.
+- Scoped via `Path=/x7k9m2` (2026-09-04: admin and public now share one hostname, so `Domain` scoping no longer applies — `Path` restriction is the equivalent containment) — the browser never attaches this cookie to a request under the public route tree, so a public-site XSS (however unlikely, Section 12) has no admin cookie to steal in the first place. `httpOnly` (above) already blocks `document.cookie` reads regardless of path.
 
 ### 2.6 Session lifetime
 
@@ -123,7 +123,7 @@ Any invalid state — malformed secret, no matching hash, revoked, expired, tamp
 
 ### 2.8 `noindex`/robots protections
 
-The admin subdomain serves `X-Robots-Tag: noindex, nofollow` on every response and a `robots.txt` disallowing the entire subdomain, so it is never crawled, cached, or surfaced in search results — reduces the odds of the admin path itself becoming discoverable through indexing rather than through a deliberate leak.
+**This is defense-in-depth against indexing/scanning noise, not a security boundary — knowing or finding `/x7k9m2` must never be treated as equivalent to authenticating.** The `/x7k9m2` route segment sets `robots: { index: false, follow: false }` via Next.js metadata (2026-09-04: previously an entire separate admin subdomain carried a blanket `X-Robots-Tag`/`robots.txt` disallow; now that admin is a path segment on the public hostname, the `noindex` directive is scoped to that segment specifically rather than to a whole domain), so it is not crawled, cached, or surfaced in search results by compliant crawlers — reduces the odds of the admin path becoming discoverable through indexing rather than through a deliberate leak. `robots.txt`/`X-Robots-Tag` are voluntary signals a crawler may ignore; they are never relied on to actually keep the path secret, and the real security boundary (token + signed session cookie + revocation/expiry checks, Sections 2.1–2.7) does not depend on them.
 
 ### 2.9 Referrer leakage
 
@@ -288,7 +288,7 @@ The admin session is cookie-based, which makes CSRF a real threat class to analy
 
 **Why `SameSite=Strict` alone is not treated as sufficient, and what's added:**
 - **Browser/edge-case coverage:** older or misconfigured user agents, browser extensions that alter cookie behavior, or a future regression in this exact configuration are all realistic enough that a cookie attribute should not be the *only* layer for a mutation boundary this sensitive.
-- **Defense-in-depth: Origin/Referer verification on every state-changing admin request.** The server checks that the request's `Origin` (or `Referer` as fallback) header matches the admin subdomain before processing any mutation — a cross-site-originated request fails this check independent of cookie behavior.
+- **Defense-in-depth: Origin/Referer verification on every state-changing admin request.** The server checks that the request's `Origin` (or `Referer` as fallback) header matches the site's own origin (2026-09-04: admin and public share one hostname, so this is the same origin check as any other mutation on this app, not a separate admin-subdomain comparison) before processing any mutation — a cross-site-originated request fails this check independent of cookie behavior.
 - **Next.js Server Actions' built-in protections:** Server Actions include their own same-origin enforcement (an encrypted, non-guessable action reference tied to the origin that rendered it) — using Server Actions for admin mutations (rather than hand-rolled API routes accepting arbitrary POST bodies) gets this protection by construction, and is the preferred implementation pattern for this reason, not just convenience.
 - **No CSRF-token-in-cookie pattern is introduced** — that pattern exists specifically to work around session cookies that lack `SameSite` protection; it would be redundant machinery layered on top of a mechanism (`Strict` + Origin check) that already covers the same threat more simply, and adding it would itself require yet another value to protect, for no additional real protection at this system's scale.
 
@@ -407,7 +407,9 @@ Because the business has explicitly refused authentication/login/password/PIN, *
 
 - [ ] **Secrets:** `SUPABASE_SERVICE_ROLE_KEY` and the cookie-signing secret confirmed present only in server-side environment configuration (not committed to the repo, not in any `NEXT_PUBLIC_*` variable).
 - [ ] **Client bundle audit:** grep the built client JS output for the service_role key and the cookie-signing secret — confirm zero matches, as a mechanical check, not just a code-review assumption.
-- [ ] **Cookies:** admin session cookie verified `httpOnly`, `Secure`, `SameSite=Strict`, correctly scoped to the admin subdomain only, signed and tamper-checked.
+- [ ] **Cookies:** admin session cookie verified `httpOnly`, `Secure`, `SameSite=Strict`, `Path=/x7k9m2`, signed and tamper-checked.
+- [ ] **Obscure path is not treated as auth:** confirmed visiting `/x7k9m2/` with no valid session cookie is rejected (generic 404) exactly like any other unauthenticated admin request — the path itself grants nothing.
+- [ ] **Old `/admin/*` route:** confirmed it does not exist as a page and returns generic 404, not a redirect to `/x7k9m2/*` (no alternate unprotected entry point).
 - [ ] **Admin access:** bootstrap flow tested for generic-404 behavior on every invalid case (bad secret, revoked, expired, malformed); token entropy confirmed ≥256 bits at generation.
 - [ ] **RLS:** policies applied and tested for every table per Section 5/`05` §11 — confirm `anon` cannot write anywhere, confirm `anon` read scope matches exactly the public catalog's needs (no over-broad `SELECT *` grants).
 - [ ] **`service_role` isolation:** every admin route/action confirmed to sit behind the access-control middleware individually — no route reachable that uses `service_role` without that check running first.
@@ -419,8 +421,8 @@ Because the business has explicitly refused authentication/login/password/PIN, *
 - [ ] **XSS:** confirmed no `dangerouslySetInnerHTML` (or equivalent) anywhere in the codebase touching user/admin-supplied content.
 - [ ] **Inventory transactions:** confirmed append-only in practice (no `UPDATE`/`DELETE` code path against `inventory_transactions`), confirmed the negative-stock CHECK is active in the deployed database.
 - [ ] **Sales/payment mutation:** confirmed `payment_status`/`sale_status` transitions are the only write paths to those columns, confirmed prices are always server-derived at sale creation.
-- [ ] **HTTPS:** confirmed enforced end-to-end (no HTTP fallback) on both the public domain and the admin subdomain.
-- [ ] **Robots/noindex:** confirmed `X-Robots-Tag: noindex` and `robots.txt` disallow active on the admin subdomain in the production deployment specifically (not just in local/staging config that might not carry over).
+- [ ] **HTTPS:** confirmed enforced end-to-end (no HTTP fallback) — single hostname now covers both public and admin, so there is one deployment to verify, not two.
+- [ ] **Robots/noindex:** confirmed the `/x7k9m2` route segment's `robots: { index: false, follow: false }` metadata is present in the production deployment specifically (not just in local/staging config that might not carry over) — restated: this is a courtesy signal, not the security boundary.
 - [ ] **Production environment:** confirmed no seed/test data (`05` §15), no local-dev bootstrap credential, present in production; confirmed production `settings` row is populated with real values before launch, not left as seed placeholders.
 
 ---

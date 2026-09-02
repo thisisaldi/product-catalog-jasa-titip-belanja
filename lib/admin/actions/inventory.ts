@@ -64,7 +64,7 @@ export async function adjustStock(formData: FormData): Promise<ActionResult> {
     return { error: "Gagal menyimpan transaksi stok. Coba lagi." };
   }
 
-  revalidatePath("/admin/inventaris");
-  revalidatePath("/admin/produk");
+  revalidatePath("/x7k9m2/inventaris");
+  revalidatePath("/x7k9m2/produk");
   return { success: true };
 }

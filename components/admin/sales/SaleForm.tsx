@@ -89,7 +89,7 @@ export function SaleForm({ products }: { products: SellableProduct[] }) {
         }
         // Cart is component-local state, never persisted — closing this
         // page (via navigation below) is all "clearing the cart" means.
-        router.push(`/penjualan/${result.saleId}`);
+        router.push(`/x7k9m2/penjualan/${result.saleId}`);
       } catch {
         setError("Terjadi kesalahan jaringan. Coba lagi.");
       }

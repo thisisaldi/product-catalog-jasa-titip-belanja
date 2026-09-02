@@ -85,14 +85,11 @@ export async function createProduct(_prev: ActionResult, formData: FormData): Pr
     if (error?.code === "23505") return { error: "Slug produk sudah digunakan — coba nama lain." };
     return { error: "Gagal menyimpan produk. Coba lagi." };
   }
-  revalidatePath("/admin/produk");
+  revalidatePath("/x7k9m2/produk");
   // Creation is two steps (05-database-design.md Section 4): save the
   // product row, then manage images — send the admin straight to the image
   // manager rather than leaving them on a form with no visible outcome.
-  // Browser-visible path, not the /admin/... filesystem route — the admin
-  // subdomain's middleware rewrite means the address bar never shows the
-  // /admin prefix (middleware.ts).
-  redirect(`/produk/${data.id}`);
+  redirect(`/x7k9m2/produk/${data.id}`);
 }
 
 export async function updateProduct(
@@ -125,8 +122,8 @@ export async function updateProduct(
     if (error.code === "23505") return { error: "Slug produk sudah digunakan — coba nama lain." };
     return { error: "Gagal menyimpan produk. Coba lagi." };
   }
-  revalidatePath("/admin/produk");
-  revalidatePath(`/admin/produk/${id}`);
+  revalidatePath("/x7k9m2/produk");
+  revalidatePath(`/x7k9m2/produk/${id}`);
   return { success: true };
 }
 
@@ -136,7 +133,7 @@ export async function setProductStatus(id: string, status: "ACTIVE" | "INACTIVE"
   // Never a DELETE — archive/restore only (05-database-design.md Section 12).
   const { error } = await supabase.from("products").update({ status }).eq("id", id);
   if (error) return { error: "Gagal mengubah status. Coba lagi." };
-  revalidatePath("/admin/produk");
-  revalidatePath(`/admin/produk/${id}`);
+  revalidatePath("/x7k9m2/produk");
+  revalidatePath(`/x7k9m2/produk/${id}`);
   return { success: true };
 }
