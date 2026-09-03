@@ -36,10 +36,10 @@ export default async function ProductDetailPage({
             <span className="text-sm font-medium uppercase tracking-wider text-text-secondary">
               {product.brand.name}
             </span>
-            <h1 className="mt-2 font-serif text-2xl leading-snug text-text-primary md:text-3xl">
+            <h1 className="mt-2 text-lg font-medium leading-snug text-text-primary">
               {product.name}
             </h1>
-            <p className="mt-3 text-2xl font-semibold text-text-primary">
+            <p className="mt-3 text-xl font-semibold text-text-primary">
               {formatPrice(product.price)}
             </p>
             <div className="mt-3">

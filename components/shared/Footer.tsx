@@ -9,7 +9,7 @@ export function Footer({ whatsappNumber }: { whatsappNumber: string }) {
   return (
     <footer className="border-t border-border bg-surface">
       <Container className="py-14 sm:py-16">
-        <p className="font-serif text-2xl italic text-text-primary">Katalog</p>
+        <p className="text-lg font-semibold text-text-primary">Katalog</p>
         <p className="mt-3 max-w-sm text-sm leading-relaxed text-text-secondary">
           Katalog produk kurasi dari berbagai brand. Lihat produknya, lanjutkan obrolan lewat
           WhatsApp.

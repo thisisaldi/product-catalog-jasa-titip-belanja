@@ -63,7 +63,7 @@ export function Header({ whatsappNumber }: { whatsappNumber: string }) {
           </div>
         </div>
       </Container>
-      <div className="border-t border-border px-5 pb-3 pt-2 sm:hidden">
+      <div className="border-t border-border px-4 pb-3 pt-2 sm:hidden">
         <SearchForm id="header-search-mobile" />
       </div>
     </header>

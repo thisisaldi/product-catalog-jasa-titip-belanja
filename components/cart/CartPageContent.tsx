@@ -101,7 +101,7 @@ export function CartPageContent() {
         >
           ← Kembali ke keranjang
         </button>
-        <h1 className="mt-3 font-serif text-2xl text-text-primary">Detail Pemesanan</h1>
+        <h1 className="mt-3 text-2xl font-semibold text-text-primary">Detail Pemesanan</h1>
         <p className="mt-2 text-sm text-text-secondary">
           Isi data berikut untuk membuat pesanan. Pembayaran dan konfirmasi selanjutnya
           dilakukan lewat WhatsApp.
@@ -171,7 +171,7 @@ export function CartPageContent() {
     return (
       <div className="mx-auto flex max-w-md flex-col items-center py-16 text-center">
         <BagIcon className="h-12 w-12 text-text-secondary" />
-        <h1 className="mt-5 font-serif text-2xl text-text-primary">Keranjang kamu kosong</h1>
+        <h1 className="mt-5 text-2xl font-semibold text-text-primary">Keranjang kamu kosong</h1>
         <p className="mt-2 text-sm text-text-secondary">
           Yuk jelajahi katalog dan temukan produk favoritmu.
         </p>
@@ -187,7 +187,7 @@ export function CartPageContent() {
 
   return (
     <div className="py-2">
-      <h1 className="font-serif text-2xl text-text-primary sm:text-3xl">Keranjang</h1>
+      <h1 className="text-2xl font-semibold text-text-primary sm:text-3xl">Keranjang</h1>
 
       <div className="mt-8 grid gap-10 lg:grid-cols-3">
         <ul className="flex flex-col gap-5 lg:col-span-2">
