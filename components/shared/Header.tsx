@@ -1,20 +1,55 @@
 "use client";
 
-import { useState, type FormEvent } from "react";
+import { useEffect, useRef, useState, type FormEvent } from "react";
 import { useRouter } from "next/navigation";
 import { Logo } from "./Logo";
 import { SearchIcon, WhatsAppIcon } from "./icons";
 import { Container } from "./Container";
 import { CartIndicator } from "@/components/cart/CartIndicator";
 import { buildWhatsAppLink } from "@/lib/whatsapp/build-link";
+import { useSearchBridgeRef } from "@/lib/catalog/SearchBridge";
+
+// frontend-implementation-plan.md — <SearchInput />: "debounced (client-side,
+// ~300ms) onChange emits query string." Live-debounced only while CatalogView
+// is mounted (it registers a handler on the shared SearchBridge ref) — calls
+// straight into its own refetch state, not router.replace: a same-pathname,
+// search-param-only client navigation (`router.replace("/?q=...")` while
+// already on `/`) throws "destination stream closed early" in this pinned
+// Next.js 16.3.4 canary build (confirmed pre-existing — the old Enter-submit
+// search had the identical bug when already on the catalog page; a full page
+// load or a cross-pathname router.push both work fine). With no handler
+// registered (any other route) the box falls back to submit-only navigation.
+const SEARCH_DEBOUNCE_MS = 300;
 
 function SearchForm({ id }: { id: string }) {
   const router = useRouter();
+  const bridgeRef = useSearchBridgeRef();
   const [value, setValue] = useState("");
+  const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  useEffect(() => {
+    return () => {
+      if (debounceRef.current) clearTimeout(debounceRef.current);
+    };
+  }, []);
+
+  function handleChange(next: string) {
+    setValue(next);
+    if (!bridgeRef?.current) return;
+    if (debounceRef.current) clearTimeout(debounceRef.current);
+    debounceRef.current = setTimeout(() => {
+      bridgeRef.current?.(next.trim());
+    }, SEARCH_DEBOUNCE_MS);
+  }
 
   function handleSubmit(e: FormEvent) {
     e.preventDefault();
+    if (debounceRef.current) clearTimeout(debounceRef.current);
     const q = value.trim();
+    if (bridgeRef?.current) {
+      bridgeRef.current(q);
+      return;
+    }
     router.push(q ? `/?q=${encodeURIComponent(q)}` : "/");
   }
 
@@ -28,7 +63,7 @@ function SearchForm({ id }: { id: string }) {
         id={id}
         type="search"
         value={value}
-        onChange={(e) => setValue(e.target.value)}
+        onChange={(e) => handleChange(e.target.value)}
         placeholder="Cari produk, brand, atau kategori"
         className="w-full rounded-full border border-border bg-surface py-2.5 pl-10 pr-4 text-base text-text-primary placeholder:text-text-secondary focus:border-accent focus:outline-none focus:ring-2 focus:ring-accent"
       />

@@ -3,6 +3,7 @@
 import { useState, useTransition } from "react";
 import type { Brand, Category, Product } from "@/lib/catalog/types";
 import { fetchCatalogPage } from "@/lib/catalog/actions";
+import { useRegisterSearchHandler } from "@/lib/catalog/SearchBridge";
 import { FilterBar, type Availability } from "./FilterBar";
 import { ProductGrid } from "./ProductGrid";
 import { ProductGridSkeleton } from "./Skeleton";
@@ -22,7 +23,7 @@ export function CatalogView({
   brands: Brand[];
   initialQuery: string;
 }) {
-  const [query] = useState(initialQuery);
+  const [query, setQuery] = useState(initialQuery);
   const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
   const [selectedBrands, setSelectedBrands] = useState<string[]>([]);
   const [availability, setAvailability] = useState<Availability>("all");
@@ -40,12 +41,13 @@ export function CatalogView({
     availability !== "all";
 
   function refetch(next: {
+    query?: string;
     categories?: string[];
     brands?: string[];
     availability?: Availability;
   }) {
     const params = {
-      query,
+      query: next.query ?? query,
       categorySlugs: next.categories ?? selectedCategories,
       brandSlugs: next.brands ?? selectedBrands,
       availability: next.availability ?? availability,
@@ -82,6 +84,13 @@ export function CatalogView({
     setAvailability(value);
     refetch({ availability: value });
   }
+
+  function changeQuery(value: string) {
+    setQuery(value);
+    refetch({ query: value });
+  }
+
+  useRegisterSearchHandler(changeQuery);
 
   function clearAll() {
     setSelectedCategories([]);
