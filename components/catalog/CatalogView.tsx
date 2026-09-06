@@ -1,13 +1,13 @@
 "use client";
 
-import { useState, useTransition } from "react";
+import { useCallback, useState, useTransition } from "react";
 import type { Brand, Category, Product } from "@/lib/catalog/types";
 import { fetchCatalogPage } from "@/lib/catalog/actions";
 import { useRegisterSearchHandler } from "@/lib/catalog/SearchBridge";
 import { FilterBar, type Availability } from "./FilterBar";
 import { ProductGrid } from "./ProductGrid";
 import { ProductGridSkeleton } from "./Skeleton";
-import { LoadMoreButton } from "./LoadMoreButton";
+import { LoadMoreSentinel } from "./LoadMoreSentinel";
 import { EmptyState } from "./EmptyState";
 
 export function CatalogView({
@@ -99,7 +99,7 @@ export function CatalogView({
     refetch({ categories: [], brands: [], availability: "all" });
   }
 
-  function loadMore() {
+  const loadMore = useCallback(() => {
     if (!nextCursor) return;
     setLoadError(null);
     startLoadMore(async () => {
@@ -117,7 +117,7 @@ export function CatalogView({
         setLoadError("Gagal memuat produk berikutnya. Coba lagi.");
       }
     });
-  }
+  }, [nextCursor, query, selectedCategories, selectedBrands, availability]);
 
   return (
     <div className="mt-8 sm:mt-10">
@@ -160,7 +160,9 @@ export function CatalogView({
             )}
           </>
         )}
-        {nextCursor && !isRefetching && <LoadMoreButton onClick={loadMore} loading={isLoadingMore} />}
+        {nextCursor && !isRefetching && (
+          <LoadMoreSentinel onVisible={loadMore} loading={isLoadingMore} />
+        )}
       </div>
     </div>
   );

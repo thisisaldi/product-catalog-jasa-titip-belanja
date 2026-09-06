@@ -391,14 +391,14 @@ The audit correctly identified that RLS alone only governs row visibility, not c
 
 ## 9. Pagination Strategy
 
-Cursor-based keyset pagination for the public catalog "Load More" (locked decision, Section 03-design-specification.md 2.2).
+Cursor-based keyset pagination for the public catalog, triggered by scroll (revised 2026-09-06 — client requirement change, `03-design-specification.md` Section 2.2 / 4.4; supersedes the original "Load More" button trigger). Only the trigger changed — cursor shape, sort order, and query mechanics below are unchanged.
 
 - Sort order: `created_at DESC, id DESC` (id as tiebreaker for rows with identical timestamps — guarantees a total order, which offset pagination and a `created_at`-only sort both lack).
 - Cursor shape: opaque, base64-encoded JSON `{ "created_at": "...", "id": "..." }`, returned by the API alongside each page and passed back by the client to fetch the next batch. Never a raw offset integer (offset breaks under concurrent inserts; PRD/design brief don't need arbitrary jump-to-page).
 - Query shape: `WHERE (created_at, id) < (:cursor_created_at, :cursor_id) ORDER BY created_at DESC, id DESC LIMIT :page_size`.
 - `has_more` determined by fetching `page_size + 1` rows and checking if the extra row exists, rather than a separate `COUNT(*)` query (cheaper, avoids a second full-table scan).
 - Applies identically whether filters (category/brand/availability) or search are active — the cursor is scoped to the filtered/searched result set, not the whole catalog.
-- No numbered pagination, no infinite scroll (locked decision) — the "Load More" button is the only trigger that requests the next page.
+- No numbered pagination. Auto-load on scroll: an `IntersectionObserver` sentinel below the grid requests the next page when it enters the viewport; the observer disconnects while a fetch is in flight to prevent duplicate requests, and reconnects once the new page is appended.
 
 ---
 

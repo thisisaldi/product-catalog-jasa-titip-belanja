@@ -251,12 +251,11 @@ Do not store product images as a JSON/array field on products.
 The public catalog uses:
 
 * Cursor-based pagination
-* "Load More"
+* Auto-load on scroll (revised 2026-09-06 — client requirement change, superseding the earlier "Load More" button-only rule; see `docs/03-design-specification.md` §2.2/§4.4 and `docs/04-system-design.md` §9)
 * PostgreSQL ILIKE/OR search for v1
 
 Do not introduce:
 
-* Infinite scroll
 * Numbered pagination
 * External search engines
 

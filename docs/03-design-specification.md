@@ -170,11 +170,11 @@ Standard: `sm 640 · md 768 · lg 1024 · xl 1280 · 2xl 1536`. Primary design t
 
 **Content hierarchy:** Grid of Product Cards, no section subdivision beyond active filters.
 
-**Desktop behavior:** 4-column CSS Grid, `max-w-7xl mx-auto`. Initial page loads a fixed batch (e.g. 20 products); a "Muat Lebih Banyak" (Load More) button renders centered below the grid, `mt-8`, when more results exist. No infinite scroll, no numbered pagination (decision locked 2026-09-01).
+**Desktop behavior:** 4-column CSS Grid, `max-w-7xl mx-auto`. Initial page loads a fixed batch (e.g. 20 products); scrolling near the end of the grid auto-triggers the next cursor page fetch via `IntersectionObserver` on a sentinel below the grid. No numbered pagination. No manual "Load More" button (decision revised 2026-09-06 — client requirement change, supersedes the 2026-09-01 locked decision; see `CLAUDE.md` §9 and §14).
 
-**Mobile behavior:** 2-column grid, full-bleed within container padding. Same Load More button, full-width `max-w-xs mx-auto` centered.
+**Mobile behavior:** 2-column grid, full-bleed within container padding. Same auto-load-on-scroll behavior.
 
-**Interaction states:** None at grid level (delegates to cards). Filter changes reset the batch and trigger grid re-render with skeleton state during fetch (2.9). Load More button: default outline style, loading state shows inline spinner + "Memuat..." label and is disabled during fetch (prevents double-fetch on repeated taps), appended cards fade in (`opacity` only, ≤300ms, honors reduced motion) rather than causing a layout jump.
+**Interaction states:** None at grid level (delegates to cards). Filter changes reset the batch, disconnect/reset the sentinel observer, and trigger grid re-render with skeleton state during fetch (2.9). While a page is loading, an inline spinner + "Memuat..." row renders below the last appended row (replaces the old Load More button's loading state) and the observer is disconnected until the fetch resolves (prevents double-fetch on rapid scroll). Appended cards fade in (`opacity` only, ≤300ms, honors reduced motion) rather than causing a layout jump.
 
 **Accessibility:** Grid is a `<ul>` of `<li>` cards (or `<div role="list">` if semantic list breaks card link semantics) — list landmark helps screen-reader users know item count context ("24 products"). Announce result count on filter change via `aria-live="polite"` region.
 
@@ -418,7 +418,7 @@ Resolved 2026-09-01:
 1. **Logo/wordmark** — temporary text wordmark in a fixed-size `<Logo />` slot; final asset swaps in without layout change. See Section 1.1.
 2. **WhatsApp CTA contrast** — CTA fill darkened to `--whatsapp-cta` `#157A3A` (≈5.4:1 with white text, passes AA); `--whatsapp` `#25D366` kept only for the icon glyph. See Section 1.7 / 2.6.
 3. **Sold-out products** — stay visible in catalog and detail, marked "Stok Habis"; detail CTA relabels to "Tanya Ketersediaan" with a different pre-filled message, button never disabled/hidden. See Section 2.5-2.7.
-4. **Pagination** — "Muat Lebih Banyak" (Load More) button, no infinite scroll, no numbered pagination. See Section 2.2.
+4. **Pagination** — cursor-based, auto-load on scroll (revised 2026-09-06, see Section 2.2); no numbered pagination.
 5. **Search scope** — product name + brand + category, single input. See Section 2.3.
 6. **Product images** — 1-5 per product; single image renders with no gallery chrome, 2-5 renders scroll-snap gallery + dots/thumbnails. See Section 2.5.
 7. **WhatsApp number** — admin-configurable, passed into the CTA component as config/prop, never hardcoded. See Section 2.6.
@@ -432,7 +432,7 @@ Checked against Section 3 cross-component rules and Section 1 tokens after apply
 - Color lock holds: `--accent` unchanged and still the only non-functional accent; `--whatsapp` / `--whatsapp-cta` are functional-only (WhatsApp association), consistent with the original rule that WhatsApp green is reserved and never decorative elsewhere.
 - Radius lock holds: CTA is still the sole `rounded-full` button; no new shapes introduced by these decisions.
 - No new duplicate-CTA-intent: the two WhatsApp label states are mutually exclusive per product (never both on screen), so this is a state variant, not a second CTA.
-- Load More button needs its own visual spec (outline style, not filled) — added in Section 2.2; it must not visually compete with the `rounded-full` WhatsApp CTA (kept `rounded-lg`, standard button, per the radius rule).
+- Auto-load loading row (inline spinner + "Memuat...") replaces the old Load More button — see Section 2.2; it must not visually compete with the `rounded-full` WhatsApp CTA.
 - Single-image gallery branch avoids shipping unused carousel chrome (dead dots/arrows with one slide), consistent with the "don't build for hypothetical state" bias.
 
 No inconsistencies found between the new decisions and the previously locked spec.
