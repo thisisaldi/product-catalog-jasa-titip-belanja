@@ -9,9 +9,7 @@ const ADMIN_ROOT = "/x7k9m2";
 
 const NAV_ITEMS = [
   { href: `${ADMIN_ROOT}/`, label: "Dashboard" },
-  { href: `${ADMIN_ROOT}/produk`, label: "Produk" },
-  { href: `${ADMIN_ROOT}/kategori`, label: "Kategori" },
-  { href: `${ADMIN_ROOT}/merek`, label: "Merek" },
+  { href: `${ADMIN_ROOT}/produk`, label: "Katalog" },
   { href: `${ADMIN_ROOT}/inventaris`, label: "Inventaris" },
   { href: `${ADMIN_ROOT}/penjualan`, label: "Penjualan" },
   { href: `${ADMIN_ROOT}/pengaturan`, label: "Pengaturan" },

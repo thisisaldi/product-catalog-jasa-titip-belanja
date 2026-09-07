@@ -61,9 +61,16 @@ export function AddToCartButton({
     <button
       type="button"
       onClick={handleClick}
-      className={`transition-transform active:scale-[0.96] ${justAdded ? "scale-[1.04]" : ""} ${className}`}
+      className={`transition-transform active:scale-[0.96] ${justAdded ? "scale-[1.04] !bg-available" : ""} ${className}`}
     >
-      {justAdded ? "Ditambahkan ✓" : "Tambah ke Keranjang"}
+      {justAdded ? (
+        "Ditambahkan ✓"
+      ) : (
+        <>
+          <BagIcon className="h-4 w-4" />
+          Tambah ke Keranjang
+        </>
+      )}
     </button>
   );
 }

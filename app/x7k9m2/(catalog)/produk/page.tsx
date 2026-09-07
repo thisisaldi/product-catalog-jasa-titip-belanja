@@ -8,8 +8,7 @@ export default async function AdminProductsPage() {
 
   return (
     <div>
-      <div className="flex items-center justify-between">
-        <h1 className="text-xl font-semibold">Produk</h1>
+      <div className="flex items-center justify-end">
         <Link
           href="/x7k9m2/produk/baru"
           className="rounded-lg bg-accent px-4 py-2 text-sm font-medium text-white"

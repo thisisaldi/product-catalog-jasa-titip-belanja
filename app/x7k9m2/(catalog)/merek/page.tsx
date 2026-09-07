@@ -6,7 +6,6 @@ export default async function BrandsPage() {
   const brands = await listBrands();
   return (
     <TaxonomyPage
-      title="Merek"
       namePlaceholder="Nama merek baru"
       entries={brands}
       actions={{ create: createBrand, update: updateBrand, archive: archiveBrand, restore: restoreBrand }}

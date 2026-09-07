@@ -44,17 +44,17 @@ export function ProductCard({ product }: { product: Product }) {
           </span>
           <AvailabilityBadge available={product.available} />
         </div>
-        <div className="mt-2 flex items-center gap-2">
+        <div className="mt-2.5 flex items-center gap-2.5">
           <Link
             href={`/produk/${product.slug}`}
-            className="flex h-10 flex-1 items-center justify-center rounded-full border border-border text-sm font-medium text-text-primary transition-colors active:bg-border/60"
+            className="flex h-10 flex-1 items-center justify-center rounded-lg border border-border text-sm font-medium text-text-primary transition-colors hover:bg-accent-soft/60 active:bg-border/60"
           >
             Lihat Detail
           </Link>
           {product.available && (
             <AddToCartButton
               product={product}
-              className="flex h-10 flex-1 items-center justify-center rounded-full bg-accent text-sm font-medium text-white"
+              className="flex h-10 flex-1 items-center justify-center gap-1.5 rounded-lg bg-accent text-sm font-medium text-white shadow-sm transition-colors hover:bg-accent/90"
             />
           )}
         </div>

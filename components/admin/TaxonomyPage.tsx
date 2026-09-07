@@ -11,21 +11,17 @@ type Actions = {
 };
 
 export function TaxonomyPage({
-  title,
   namePlaceholder,
   entries,
   actions,
 }: {
-  title: string;
   namePlaceholder: string;
   entries: AdminTaxonomy[];
   actions: Actions;
 }) {
   return (
     <div>
-      <h1 className="text-xl font-semibold">{title}</h1>
-
-      <div className="mt-4 max-w-md">
+      <div className="max-w-md">
         <TaxonomyCreateForm action={actions.create} placeholder={namePlaceholder} />
       </div>
 

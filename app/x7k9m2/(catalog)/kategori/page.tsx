@@ -11,7 +11,6 @@ export default async function CategoriesPage() {
   const categories = await listCategories();
   return (
     <TaxonomyPage
-      title="Kategori"
       namePlaceholder="Nama kategori baru"
       entries={categories}
       actions={{
