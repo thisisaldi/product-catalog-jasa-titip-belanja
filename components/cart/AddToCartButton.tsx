@@ -50,9 +50,9 @@ export function AddToCartButton({
         type="button"
         onClick={handleClick}
         aria-label={`Tambah ${product.name} ke keranjang`}
-        className={`flex h-10 w-10 items-center justify-center rounded-full bg-surface/90 text-text-primary shadow-card backdrop-blur transition-transform active:scale-90 ${justAdded ? "bg-accent text-white" : ""} ${className}`}
+        className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-accent text-white shadow-sm transition-all hover:bg-accent/90 active:scale-90 ${justAdded ? "!bg-available" : ""} ${className}`}
       >
-        <BagIcon className="h-5 w-5" />
+        <BagIcon className="h-[18px] w-[18px]" />
       </button>
     );
   }

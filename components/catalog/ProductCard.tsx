@@ -51,12 +51,7 @@ export function ProductCard({ product }: { product: Product }) {
           >
             Lihat Detail
           </Link>
-          {product.available && (
-            <AddToCartButton
-              product={product}
-              className="flex h-10 flex-1 items-center justify-center gap-1.5 rounded-lg bg-accent text-sm font-medium text-white shadow-sm transition-colors hover:bg-accent/90"
-            />
-          )}
+          {product.available && <AddToCartButton product={product} iconOnly />}
         </div>
       </div>
     </div>
