@@ -9,10 +9,10 @@ export function ProductCard({ product }: { product: Product }) {
   const thumbnail = product.images.find((img) => img.isPrimary) ?? product.images[0];
 
   return (
-    <div className="group flex flex-col rounded-lg">
+    <div className="group flex flex-col overflow-hidden rounded-lg border border-border bg-surface transition-shadow duration-300 hover:shadow-card">
       <Link
         href={`/produk/${product.slug}`}
-        className="block overflow-hidden rounded-lg bg-border shadow-sm outline-none transition-shadow duration-300 hover:shadow-card focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2"
+        className="block bg-border outline-none"
         aria-label={`${product.brand.name} ${product.name}`}
       >
         {thumbnail ? (
@@ -29,11 +29,14 @@ export function ProductCard({ product }: { product: Product }) {
           />
         )}
       </Link>
-      <div className="flex flex-col gap-1 pt-3.5">
+      <div className="flex flex-1 flex-col gap-1 p-3">
         <span className="text-xs font-medium uppercase tracking-wider text-text-secondary">
           {product.brand.name}
         </span>
-        <Link href={`/produk/${product.slug}`} className="outline-none focus-visible:underline">
+        <Link
+          href={`/produk/${product.slug}`}
+          className="rounded-sm outline-none focus-visible:ring-2 focus-visible:ring-accent"
+        >
           <span className="line-clamp-2 text-[15px] font-medium leading-snug text-text-primary">
             {product.name}
           </span>
@@ -44,10 +47,10 @@ export function ProductCard({ product }: { product: Product }) {
           </span>
           <AvailabilityBadge available={product.available} />
         </div>
-        <div className="mt-2.5 flex items-center gap-2.5">
+        <div className="mt-3 flex items-center gap-2">
           <Link
             href={`/produk/${product.slug}`}
-            className="flex h-10 flex-1 items-center justify-center rounded-lg border border-border text-sm font-medium text-text-primary transition-colors hover:bg-accent-soft/60 active:bg-border/60"
+            className="flex h-10 flex-1 items-center justify-center rounded-lg border border-border text-sm font-medium text-text-primary transition-colors hover:border-accent hover:text-accent active:bg-accent-soft focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent"
           >
             Lihat Detail
           </Link>
