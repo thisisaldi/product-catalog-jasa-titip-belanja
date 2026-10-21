@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { getProductBySlug, getPublicSettings } from "@/lib/catalog/queries";
 import { formatPrice } from "@/lib/format";
@@ -7,6 +8,43 @@ import { WhatsAppCTA } from "@/components/detail/WhatsAppCTA";
 import { StickyMobileCTA } from "@/components/detail/StickyMobileCTA";
 import { AddToCartButton } from "@/components/cart/AddToCartButton";
 import { Container } from "@/components/shared/Container";
+import Link from "next/link";
+import { ArrowLeftIcon } from "@/components/shared/icons";
+
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ slug: string }>;
+}): Promise<Metadata> {
+  const { slug } = await params;
+  const product = await getProductBySlug(slug);
+  if (!product) {
+    return { title: "Produk Tidak Ditemukan" };
+  }
+
+  const thumbnail = product.images.find((img) => img.isPrimary) ?? product.images[0];
+  const title = `${product.name} — ${product.brand.name}`;
+  const description =
+    product.description?.slice(0, 160) ||
+    `Beli ${product.name} dari ${product.brand.name} di Katalog. Pesan mudah via WhatsApp.`;
+
+  return {
+    title,
+    description,
+    openGraph: {
+      title,
+      description,
+      type: "website",
+      images: thumbnail ? [{ url: thumbnail.url }] : [],
+    },
+    twitter: {
+      card: "summary_large_image",
+      title,
+      description,
+      images: thumbnail ? [thumbnail.url] : [],
+    },
+  };
+}
 
 export default async function ProductDetailPage({
   params,
@@ -21,8 +59,15 @@ export default async function ProductDetailPage({
   }
 
   return (
-    <Container className="py-10 pb-32 sm:py-14 lg:pb-16">
-      <div className="lg:grid lg:grid-cols-12 lg:gap-12">
+    <Container className="pt-4 pb-32 sm:pt-6 lg:pb-24">
+      <Link
+        href="/"
+        className="-ml-2 inline-flex h-10 items-center gap-1.5 rounded-full px-2 text-sm font-medium text-text-secondary transition-colors hover:text-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent"
+      >
+        <ArrowLeftIcon className="h-4 w-4" />
+        Katalog
+      </Link>
+      <div className="mt-3 lg:mt-4 lg:grid lg:grid-cols-12 lg:gap-12">
         <div className="lg:col-span-7">
           <ProductGallery
             images={product.images}
@@ -32,14 +77,16 @@ export default async function ProductDetailPage({
         </div>
 
         <div className="mt-8 lg:col-span-5 lg:mt-0">
-          <div className="lg:sticky lg:top-28">
-            <span className="text-sm font-medium uppercase tracking-wider text-text-secondary">
-              {product.brand.name}
-            </span>
-            <h1 className="mt-2 text-lg font-medium leading-snug text-text-primary">
+          <div className="lg:sticky lg:top-24">
+            <div className="flex items-center gap-2 text-xs font-medium uppercase tracking-wider text-text-secondary sm:text-sm">
+              <span>{product.brand.name}</span>
+              <span aria-hidden="true" className="text-text-secondary/50">•</span>
+              <span>{product.category.name}</span>
+            </div>
+            <h1 className="mt-2 text-xl font-medium leading-snug tracking-tight text-text-primary sm:text-2xl">
               {product.name}
             </h1>
-            <p className="mt-3 text-xl font-semibold text-text-primary">
+            <p className="mt-3 text-xl font-semibold tabular-nums text-text-primary">
               {formatPrice(product.price)}
             </p>
             <div className="mt-3">
@@ -48,7 +95,7 @@ export default async function ProductDetailPage({
 
             {product.description && (
               <div className="mt-7 border-t border-border pt-7">
-                <p className="max-w-[65ch] text-base leading-relaxed text-text-secondary">
+                <p className="max-w-[65ch] whitespace-pre-line text-base leading-relaxed text-text-secondary">
                   {product.description}
                 </p>
               </div>
@@ -58,7 +105,7 @@ export default async function ProductDetailPage({
               {product.available && (
                 <AddToCartButton
                   product={product}
-                  className="w-full rounded-full border border-accent px-6 py-3.5 text-base font-medium text-accent hover:bg-accent-soft lg:w-auto"
+                  className="inline-flex h-12 w-full items-center justify-center gap-2 rounded-full border border-accent px-6 text-base font-medium text-accent hover:bg-accent-soft focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2"
                 />
               )}
               <WhatsAppCTA
@@ -67,9 +114,15 @@ export default async function ProductDetailPage({
                 availabilityMessageTemplate={settings.availabilityMessageTemplate}
                 product={{ brand: product.brand.name, name: product.name, price: product.price }}
                 available={product.available}
-                className="w-full lg:w-auto"
+                className="w-full"
               />
             </div>
+
+            <p className="mt-5 rounded-lg bg-surface-muted px-4 py-3 text-sm leading-relaxed text-text-secondary">
+              {product.available
+                ? "Pesan langsung lewat WhatsApp, atau kumpulkan beberapa produk di keranjang dulu. Pembayaran dikonfirmasi admin lewat WhatsApp."
+                : "Stok sedang habis. Tanyakan ke admin lewat WhatsApp kapan produk ini tersedia lagi."}
+            </p>
           </div>
         </div>
       </div>

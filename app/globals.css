@@ -15,10 +15,18 @@
   --whatsapp-cta: #157a3a;
   --whatsapp-text: #ffffff;
 
+  /* Supporting tones (03 Section 1.7, added 2026-10-21) — same warm family,
+     no new hue: a recessed surface for grouped/info blocks, a pressed/hover
+     accent, and a soft tint for the success state. */
+  --surface-muted: #f4efe8;
+  --accent-strong: #9a4431;
+  --available-soft: #e6f0e8;
+
   /* Soft, warm elevation — used sparingly (product card hover, drawers) so
      the catalog reads as considered rather than flat, without tipping into
      a heavy "dashboard card" look. */
   --shadow-card: 0 1px 2px rgba(42, 38, 34, 0.04), 0 8px 24px -12px rgba(42, 38, 34, 0.18);
+  --shadow-pop: 0 2px 4px rgba(42, 38, 34, 0.05), 0 16px 40px -16px rgba(42, 38, 34, 0.28);
 }
 
 /* Dark mode is explicitly out of scope for v1 (03 Section 1.7) — single light theme, locked. */
@@ -36,6 +44,9 @@
   --color-whatsapp: var(--whatsapp);
   --color-whatsapp-cta: var(--whatsapp-cta);
   --color-whatsapp-text: var(--whatsapp-text);
+  --color-surface-muted: var(--surface-muted);
+  --color-accent-strong: var(--accent-strong);
+  --color-available-soft: var(--available-soft);
 
   --font-sans: var(--font-plus-jakarta-sans);
 
@@ -44,11 +55,58 @@
   --radius-2xl: 20px;
 
   --shadow-card: var(--shadow-card);
+  --shadow-pop: var(--shadow-pop);
 }
 
 body {
   background: var(--bg);
   color: var(--text-primary);
+  -webkit-tap-highlight-color: transparent;
+}
+
+::selection {
+  background: var(--accent-soft);
+  color: var(--accent-strong);
+}
+
+h1,
+h2 {
+  text-wrap: balance;
+}
+
+@utility scrollbar-none {
+  scrollbar-width: none;
+  &::-webkit-scrollbar {
+    display: none;
+  }
+}
+
+/* Mobile filter bottom sheet (03 Section 2.4): slide + fade, ~250ms. */
+dialog.sheet[open] {
+  animation: sheet-up 0.25s ease-out;
+}
+dialog.sheet[open]::backdrop {
+  animation: fade-in 0.25s ease-out;
+}
+
+@keyframes sheet-up {
+  0% {
+    transform: translateY(24px);
+    opacity: 0;
+  }
+  100% {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+@keyframes fade-in {
+  0% {
+    opacity: 0;
+  }
+  100% {
+    opacity: 1;
+  }
 }
 
 @keyframes cart-bump {

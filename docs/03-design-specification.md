@@ -83,6 +83,8 @@ Single scale, locked project-wide:
 
 Rule: cards/images/buttons use `rounded-lg`; the WhatsApp CTA is the one `rounded-full` pill element on the page (visual distinction = "this is the action").
 
+**Revised 2026-10-21 (reflects the shipped cart/checkout milestones):** `rounded-full` = page-level action buttons (WhatsApp CTA, Tambah ke Keranjang on detail, Checkout, Buat Pesanan, sheet "Terapkan", empty/error recovery buttons), filter chips/triggers, the header search field and icon buttons. `rounded-lg` = cards, images, in-card controls (Lihat Detail, icon add-to-cart), info/alert blocks. `rounded-md` = form inputs, checkbox rows, thumbnails.
+
 ### 1.7 Color Palette
 
 Warm neutral base, one desaturated accent, WhatsApp green reserved solely for WhatsApp CTA (functional recognition, not decorative).
@@ -101,8 +103,13 @@ Warm neutral base, one desaturated accent, WhatsApp green reserved solely for Wh
 | `--whatsapp` | `#25D366` | Brand-recognition use only: WhatsApp icon glyph fill, never as a CTA background with text on top |
 | `--whatsapp-cta` | `#157A3A` | WhatsApp CTA button background (darkened, AA-safe) |
 | `--whatsapp-text` | `#FFFFFF` | Text on WhatsApp CTA |
+| `--surface-muted` | `#F4EFE8` | Recessed surface: image/skeleton backdrop, info notes, totals block, icon wells (added 2026-10-21) |
+| `--accent-strong` | `#9A4431` | Hover/pressed state of accent fills; accent text on `--accent-soft` (active chips, inline errors) (added 2026-10-21) |
+| `--available-soft` | `#E6F0E8` | Success-state tint (order created) (added 2026-10-21) |
 
 Contrast checked: `--text-primary` on `--bg` = 13.9:1. `--accent` on `--bg` = 5.1:1 (passes AA for text use). `--whatsapp-text` on `--whatsapp-cta` (`#157A3A`) ≈ 5.4:1 — passes AA for normal text, resolved 2026-09-01. `--whatsapp` (`#25D366`) is retained only for the small WhatsApp glyph icon inside the CTA (icon at sufficient size/contrast against the darker fill), never as a text-bearing fill. Availability still never relies on color alone (text label always present).
+
+UI polish pass 2026-10-21: the three supporting tones above stay inside the same warm family (no new hue, accent lock unchanged). `--accent-strong` on `--accent-soft` ≈ 6:1, `--available` on `--available-soft` ≈ 4.6:1. A second, deeper shadow token `--shadow-pop` is used only for floating layers (dropdown popover, toast).
 
 Dark mode: out of scope for v1 (catalog/e-commerce convention, brief doesn't request it). Single light theme, locked project-wide (Section 4.11 theme-lock rule).
 

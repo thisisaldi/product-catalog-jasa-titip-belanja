@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { useCart } from "@/lib/cart/CartContext";
 import type { Product } from "@/lib/catalog/types";
-import { BagIcon } from "@/components/shared/icons";
+import { BagIcon, CheckIcon } from "@/components/shared/icons";
 
 /**
  * Only ever gated by the resolved two-state `available` boolean — never an
@@ -50,9 +50,9 @@ export function AddToCartButton({
         type="button"
         onClick={handleClick}
         aria-label={`Tambah ${product.name} ke keranjang`}
-        className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-accent text-white shadow-card transition-all hover:bg-accent/90 active:scale-90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 ${justAdded ? "!bg-available" : ""} ${className}`}
+        className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-accent text-white shadow-card transition-[background-color,transform] hover:bg-accent-strong active:scale-90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 ${justAdded ? "!bg-available" : ""} ${className}`}
       >
-        <BagIcon className={`h-[18px] w-[18px] transition-transform ${justAdded ? "scale-110" : ""}`} />
+        {justAdded ? <CheckIcon className="h-[18px] w-[18px]" /> : <BagIcon className="h-[18px] w-[18px]" />}
       </button>
     );
   }
@@ -64,7 +64,10 @@ export function AddToCartButton({
       className={`transition-transform active:scale-[0.96] ${justAdded ? "scale-[1.04] !bg-available" : ""} ${className}`}
     >
       {justAdded ? (
-        "Ditambahkan ✓"
+        <>
+          <CheckIcon className="h-4 w-4" />
+          Ditambahkan
+        </>
       ) : (
         <>
           <BagIcon className="h-4 w-4" />

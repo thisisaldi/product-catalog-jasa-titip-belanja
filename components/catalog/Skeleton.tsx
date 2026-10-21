@@ -1,11 +1,14 @@
+// Mirrors ProductCard's frame exactly (border, image, p-3 text block, button
+// row) so swapping skeleton for content causes no layout shift (03 Section 2.9).
 function ProductCardSkeleton() {
   return (
-    <div aria-hidden="true">
-      <div className="aspect-[4/5] animate-pulse rounded-lg bg-border" />
-      <div className="mt-3 flex flex-col gap-2">
-        <div className="h-3 w-1/2 animate-pulse rounded-full bg-border" />
-        <div className="h-4 w-3/4 animate-pulse rounded-full bg-border" />
-        <div className="h-4 w-1/3 animate-pulse rounded-full bg-border" />
+    <div aria-hidden="true" className="overflow-hidden rounded-lg border border-border bg-surface">
+      <div className="aspect-[4/5] animate-pulse bg-surface-muted" />
+      <div className="flex flex-col gap-2 p-3">
+        <div className="h-3 w-1/2 animate-pulse rounded-full bg-surface-muted" />
+        <div className="h-4 w-3/4 animate-pulse rounded-full bg-surface-muted" />
+        <div className="h-4 w-1/3 animate-pulse rounded-full bg-surface-muted" />
+        <div className="mt-2 h-10 animate-pulse rounded-lg bg-surface-muted" />
       </div>
     </div>
   );

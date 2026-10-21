@@ -11,7 +11,7 @@ export function Logo() {
     <Link
       href="/"
       aria-label="Katalog — kembali ke beranda"
-      className="flex h-8 max-w-[180px] items-center truncate text-lg font-semibold text-text-primary sm:h-9"
+      className="flex h-8 max-w-[180px] shrink-0 items-center truncate rounded-sm text-lg font-semibold tracking-tight text-text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent sm:h-9"
     >
       Katalog
     </Link>

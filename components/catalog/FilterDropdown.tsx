@@ -55,10 +55,10 @@ export function FilterDropdown({
         aria-expanded={isOpen}
         aria-haspopup="true"
         onClick={() => onOpenChange(isOpen ? null : id)}
-        className={`flex items-center gap-1.5 rounded-full border px-4 py-2 text-sm font-medium transition-colors ${
+        className={`flex h-10 items-center gap-1.5 rounded-full border px-4 text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent ${
           activeCount > 0
-            ? "border-accent bg-accent-soft text-accent"
-            : "border-border text-text-primary hover:border-accent/50"
+            ? "border-accent bg-accent-soft text-accent-strong"
+            : "border-border bg-surface text-text-primary hover:border-accent/50"
         }`}
       >
         {label}
@@ -66,7 +66,7 @@ export function FilterDropdown({
         <ChevronDownIcon className={`h-4 w-4 transition-transform ${isOpen ? "rotate-180" : ""}`} />
       </button>
       {isOpen && (
-        <div className="absolute left-0 z-20 mt-2 w-60 rounded-lg border border-border bg-surface p-3 shadow-card">
+        <div className="absolute left-0 z-20 mt-2 max-h-80 w-64 overflow-y-auto rounded-lg border border-border bg-surface p-3 shadow-pop [animation:toast-in_0.15s_ease-out]">
           {children}
         </div>
       )}

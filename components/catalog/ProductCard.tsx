@@ -9,23 +9,26 @@ export function ProductCard({ product }: { product: Product }) {
   const thumbnail = product.images.find((img) => img.isPrimary) ?? product.images[0];
 
   return (
-    <div className="group flex flex-col overflow-hidden rounded-lg border border-border bg-surface transition-shadow duration-300 hover:shadow-card">
+    <div className="group flex h-full flex-col overflow-hidden rounded-lg border border-border bg-surface transition-[box-shadow,border-color] duration-300 hover:border-text-secondary/25 hover:shadow-card">
       <Link
         href={`/produk/${product.slug}`}
-        className="block bg-border outline-none"
-        aria-label={`${product.brand.name} ${product.name}`}
+        tabIndex={-1}
+        aria-hidden="true"
+        className={`block overflow-hidden bg-surface-muted outline-none ${product.available ? "" : "opacity-70"}`}
       >
         {thumbnail ? (
-          // Plain <img>, not next/image: Storage host varies per environment.
+          // Plain <img> with lazy loading
           <img
             src={thumbnail.url}
             alt={thumbnail.altText ?? `${product.brand.name} ${product.name}`}
-            className="aspect-[4/5] w-full object-cover transition-transform duration-300 ease-out group-hover:scale-[1.04]"
+            loading="lazy"
+            decoding="async"
+            className="aspect-[4/5] w-full object-cover transition-transform duration-300 ease-out group-hover:scale-[1.03]"
           />
         ) : (
           <ProductImagePlaceholder
             seed={product.id}
-            className="aspect-[4/5] w-full transition-transform duration-300 ease-out group-hover:scale-[1.04]"
+            className="aspect-[4/5] w-full transition-transform duration-300 ease-out group-hover:scale-[1.03]"
           />
         )}
       </Link>
@@ -35,14 +38,14 @@ export function ProductCard({ product }: { product: Product }) {
         </span>
         <Link
           href={`/produk/${product.slug}`}
-          className="rounded-sm outline-none focus-visible:ring-2 focus-visible:ring-accent"
+          className="rounded-sm text-text-primary outline-none transition-colors hover:text-accent focus-visible:ring-2 focus-visible:ring-accent"
         >
-          <span className="line-clamp-2 text-[15px] font-medium leading-snug text-text-primary">
+          <span className="line-clamp-2 text-[15px] font-medium leading-snug">
             {product.name}
           </span>
         </Link>
-        <div className="mt-0.5 flex items-center justify-between gap-2">
-          <span className="text-base font-semibold text-text-primary">
+        <div className="mt-auto flex flex-wrap items-center justify-between gap-x-2 gap-y-1 pt-1">
+          <span className="text-base font-semibold tabular-nums text-text-primary">
             {formatPrice(product.price)}
           </span>
           <AvailabilityBadge available={product.available} />
@@ -50,7 +53,7 @@ export function ProductCard({ product }: { product: Product }) {
         <div className="mt-3 flex items-center gap-2">
           <Link
             href={`/produk/${product.slug}`}
-            className="flex h-10 flex-1 items-center justify-center rounded-lg border border-border text-sm font-medium text-text-primary transition-colors hover:border-accent hover:text-accent active:bg-accent-soft focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent"
+            className="flex h-10 flex-1 items-center justify-center rounded-lg border border-border text-sm font-medium text-text-primary transition-colors hover:border-accent hover:text-accent active:scale-[0.98] active:bg-accent-soft focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent"
           >
             Lihat Detail
           </Link>

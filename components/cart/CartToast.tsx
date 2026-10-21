@@ -16,7 +16,7 @@ export function CartToast() {
       className="pointer-events-none fixed inset-x-0 bottom-5 z-50 flex justify-center px-4 sm:bottom-6"
     >
       {toastMessage && (
-        <div className="pointer-events-auto flex items-center gap-2 rounded-full bg-text-primary px-5 py-3 text-sm font-medium text-bg shadow-card [animation:toast-in_0.2s_ease-out]">
+        <div className="pointer-events-auto flex items-center gap-2 rounded-full bg-text-primary px-5 py-3 text-sm font-medium text-bg shadow-pop [animation:toast-in_0.2s_ease-out]">
           {toastMessage}
         </div>
       )}

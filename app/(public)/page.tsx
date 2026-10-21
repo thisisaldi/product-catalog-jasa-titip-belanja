@@ -17,13 +17,15 @@ export default async function CatalogPage({
   ]);
 
   return (
-    <Container className="py-10 sm:py-16">
-      <section className="max-w-xl border-b border-border pb-10 sm:pb-12">
+    <Container className="pt-8 sm:pt-12 lg:pt-16">
+      <section className="max-w-xl">
         <p className="text-sm font-medium uppercase tracking-wider text-accent">Koleksi Pilihan</p>
-        <h1 className="mt-2 text-3xl font-semibold text-text-primary">Katalog Kurasi Kami</h1>
-        <p className="mt-3 text-base leading-relaxed text-text-secondary">
-          Produk pilihan dari berbagai brand, untuk kamu yang suka belanja tenang tanpa ribet.
-          Tambahkan ke keranjang, lalu lanjutkan lewat WhatsApp.
+        <h1 className="mt-2 text-2xl font-semibold leading-snug tracking-tight text-text-primary sm:text-3xl">
+          Katalog Kurasi Kami
+        </h1>
+        <p className="mt-3 max-w-[52ch] text-base leading-relaxed text-text-secondary">
+          Produk pilihan dari berbagai brand. Tambahkan ke keranjang, lalu lanjutkan pesanan lewat
+          WhatsApp.
         </p>
       </section>
 

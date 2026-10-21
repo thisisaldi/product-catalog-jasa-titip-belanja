@@ -28,6 +28,10 @@ function SearchForm({ id }: { id: string }) {
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   useEffect(() => {
+    if (typeof window !== "undefined") {
+      const q = new URLSearchParams(window.location.search).get("q");
+      if (q) setValue(q);
+    }
     return () => {
       if (debounceRef.current) clearTimeout(debounceRef.current);
     };
@@ -65,7 +69,7 @@ function SearchForm({ id }: { id: string }) {
         value={value}
         onChange={(e) => handleChange(e.target.value)}
         placeholder="Cari produk, brand, atau kategori"
-        className="w-full rounded-full border border-border bg-surface py-2.5 pl-10 pr-4 text-base text-text-primary placeholder:text-text-secondary focus:border-accent focus:outline-none focus:ring-2 focus:ring-accent"
+        className="h-11 w-full rounded-full border border-border bg-surface pl-10 pr-4 text-base text-text-primary transition-colors placeholder:text-text-secondary hover:border-text-secondary/40 focus:border-accent focus:outline-none focus:ring-2 focus:ring-accent/30"
       />
     </form>
   );
@@ -79,18 +83,18 @@ export function Header({ whatsappNumber }: { whatsappNumber: string }) {
   return (
     <header className="sticky top-0 z-30 border-b border-border bg-bg/90 backdrop-blur-md">
       <Container>
-        <div className="flex h-16 items-center gap-4 sm:h-20">
+        <div className="flex h-16 items-center gap-4 sm:gap-8">
           <Logo />
           <div className="hidden max-w-md flex-1 sm:block">
             <SearchForm id="header-search-desktop" />
           </div>
-          <div className="ml-auto flex items-center gap-1 sm:ml-0">
+          <div className="ml-auto flex items-center gap-1">
             <a
               href={contactHref}
               target="_blank"
               rel="noopener noreferrer"
               aria-label="Hubungi kami via WhatsApp"
-              className="rounded-full p-2 text-text-secondary hover:text-whatsapp-cta"
+              className="flex h-10 w-10 items-center justify-center rounded-full text-text-secondary transition-colors hover:bg-surface-muted hover:text-whatsapp-cta focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent"
             >
               <WhatsAppIcon className="h-5 w-5" />
             </a>
@@ -98,7 +102,7 @@ export function Header({ whatsappNumber }: { whatsappNumber: string }) {
           </div>
         </div>
       </Container>
-      <div className="border-t border-border px-4 pb-3 pt-2 sm:hidden">
+      <div className="px-4 pb-3 sm:hidden">
         <SearchForm id="header-search-mobile" />
       </div>
     </header>

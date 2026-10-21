@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useState, useTransition } from "react";
+import { useCallback, useRef, useState, useTransition } from "react";
 import type { Brand, Category, Product } from "@/lib/catalog/types";
 import { fetchCatalogPage } from "@/lib/catalog/actions";
 import { useRegisterSearchHandler } from "@/lib/catalog/SearchBridge";
@@ -33,6 +33,10 @@ export function CatalogView({
   const [isLoadingMore, startLoadMore] = useTransition();
   const [isRefetching, startRefetch] = useTransition();
   const [loadError, setLoadError] = useState<string | null>(null);
+  const requestIdRef = useRef(0);
+  // Only cards appended after the server-rendered first batch fade in
+  // (03 Section 2.2), so the initial paint/LCP is never delayed.
+  const [animateFrom, setAnimateFrom] = useState(initialProducts.length);
 
   const hasActiveFilters =
     query.trim() !== "" ||
@@ -40,25 +44,54 @@ export function CatalogView({
     selectedBrands.length > 0 ||
     availability !== "all";
 
+  // URL sync helper (uses replaceState to avoid Next.js stream navigation bug)
+  const syncUrl = useCallback(
+    (q: string, cats: string[], brs: string[], avail: Availability) => {
+      if (typeof window === "undefined") return;
+      const params = new URLSearchParams();
+      if (q.trim()) params.set("q", q.trim());
+      if (cats.length > 0) params.set("kategori", cats.join(","));
+      if (brs.length > 0) params.set("merek", brs.join(","));
+      if (avail !== "all") params.set("ketersediaan", avail);
+      const qs = params.toString();
+      const nextUrl = qs ? `/?${qs}` : "/";
+      window.history.replaceState(null, "", nextUrl);
+    },
+    [],
+  );
+
   function refetch(next: {
     query?: string;
     categories?: string[];
     brands?: string[];
     availability?: Availability;
   }) {
+    const targetQuery = next.query ?? query;
+    const targetCats = next.categories ?? selectedCategories;
+    const targetBrands = next.brands ?? selectedBrands;
+    const targetAvail = next.availability ?? availability;
+
+    syncUrl(targetQuery, targetCats, targetBrands, targetAvail);
+
     const params = {
-      query: next.query ?? query,
-      categorySlugs: next.categories ?? selectedCategories,
-      brandSlugs: next.brands ?? selectedBrands,
-      availability: next.availability ?? availability,
+      query: targetQuery,
+      categorySlugs: targetCats,
+      brandSlugs: targetBrands,
+      availability: targetAvail,
     };
+
     setLoadError(null);
+    const currentReqId = ++requestIdRef.current;
+
     startRefetch(async () => {
       try {
         const result = await fetchCatalogPage(params);
+        if (currentReqId !== requestIdRef.current) return;
         setProducts(result.products);
         setNextCursor(result.nextCursor);
+        setAnimateFrom(0);
       } catch {
+        if (currentReqId !== requestIdRef.current) return;
         setLoadError("Gagal memuat produk. Coba lagi.");
       }
     });
@@ -102,6 +135,8 @@ export function CatalogView({
   const loadMore = useCallback(() => {
     if (!nextCursor) return;
     setLoadError(null);
+    const currentReqId = requestIdRef.current;
+
     startLoadMore(async () => {
       try {
         const result = await fetchCatalogPage({
@@ -111,16 +146,18 @@ export function CatalogView({
           availability,
           cursor: nextCursor,
         });
+        if (currentReqId !== requestIdRef.current) return;
         setProducts((prev) => [...prev, ...result.products]);
         setNextCursor(result.nextCursor);
       } catch {
+        if (currentReqId !== requestIdRef.current) return;
         setLoadError("Gagal memuat produk berikutnya. Coba lagi.");
       }
     });
   }, [nextCursor, query, selectedCategories, selectedBrands, availability]);
 
   return (
-    <div className="mt-8 sm:mt-10">
+    <div className="mt-6 sm:mt-8">
       <FilterBar
         categories={categories}
         brands={brands}
@@ -133,13 +170,16 @@ export function CatalogView({
         onClearAll={clearAll}
       />
 
-      <p aria-live="polite" className="pt-4 text-sm text-text-secondary">
+      <p aria-live="polite" className="pt-4 text-sm text-text-secondary tabular-nums">
         {isRefetching ? "Memuat..." : `${products.length}${nextCursor ? "+" : ""} produk`}
       </p>
 
       <div className="pt-2 pb-16">
         {loadError && (
-          <div className="mb-4 rounded-lg border border-sold-out bg-accent-soft px-4 py-3 text-sm text-text-primary">
+          <div
+            role="alert"
+            className="mb-4 rounded-lg border border-accent/30 bg-accent-soft px-4 py-3 text-sm font-medium text-accent-strong"
+          >
             {loadError}
           </div>
         )}
@@ -152,7 +192,7 @@ export function CatalogView({
           />
         ) : (
           <>
-            <ProductGrid products={products} />
+            <ProductGrid products={products} animateFrom={animateFrom} />
             {isLoadingMore && (
               <div className="mt-4 md:mt-5 lg:mt-6">
                 <ProductGridSkeleton count={4} />
@@ -161,7 +201,12 @@ export function CatalogView({
           </>
         )}
         {nextCursor && !isRefetching && (
-          <LoadMoreSentinel onVisible={loadMore} loading={isLoadingMore} />
+          <LoadMoreSentinel
+            onVisible={loadMore}
+            loading={isLoadingMore}
+            hasError={Boolean(loadError)}
+            onRetry={loadMore}
+          />
         )}
       </div>
     </div>

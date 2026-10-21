@@ -35,12 +35,12 @@ function CheckboxRow({
   onChange: () => void;
 }) {
   return (
-    <label className="flex items-center gap-2 py-1.5 text-base text-text-primary">
+    <label className="-mx-2 flex min-h-11 cursor-pointer items-center gap-3 rounded-md px-2 text-base text-text-primary transition-colors hover:bg-surface-muted lg:min-h-9 lg:text-sm">
       <input
         type="checkbox"
         checked={checked}
         onChange={onChange}
-        className="h-4 w-4 rounded border-border text-accent focus:ring-accent"
+        className="h-[18px] w-[18px] shrink-0 cursor-pointer accent-accent"
       />
       {label}
     </label>
@@ -61,10 +61,10 @@ function AvailabilityPills({
         return (
           <label
             key={option.value}
-            className={`cursor-pointer rounded-full border px-3.5 py-2 text-sm transition-colors ${
+            className={`flex h-10 cursor-pointer items-center rounded-full border px-4 text-sm font-medium transition-colors has-[:focus-visible]:ring-2 has-[:focus-visible]:ring-accent ${
               checked
-                ? "border-accent bg-accent-soft text-accent"
-                : "border-border text-text-secondary hover:border-accent/50"
+                ? "border-accent bg-accent-soft text-accent-strong"
+                : "border-border bg-surface text-text-secondary hover:border-accent/50 hover:text-text-primary"
             }`}
           >
             <input
@@ -87,7 +87,7 @@ function FilterGroups(props: FilterBarProps) {
   return (
     <div className="flex flex-col gap-6">
       <div>
-        <p className="mb-1 text-sm font-medium uppercase tracking-wide text-text-secondary">
+        <p className="mb-1 text-xs font-medium uppercase tracking-wider text-text-secondary">
           Kategori
         </p>
         {props.categories.map((category) => (
@@ -100,7 +100,7 @@ function FilterGroups(props: FilterBarProps) {
         ))}
       </div>
       <div>
-        <p className="mb-1 text-sm font-medium uppercase tracking-wide text-text-secondary">
+        <p className="mb-1 text-xs font-medium uppercase tracking-wider text-text-secondary">
           Merek
         </p>
         {props.brands.map((brand) => (
@@ -113,7 +113,7 @@ function FilterGroups(props: FilterBarProps) {
         ))}
       </div>
       <div>
-        <p className="mb-2 text-sm font-medium uppercase tracking-wide text-text-secondary">
+        <p className="mb-2 text-xs font-medium uppercase tracking-wider text-text-secondary">
           Ketersediaan
         </p>
         <AvailabilityPills value={props.availability} onChange={props.onAvailabilityChange} />
@@ -140,10 +140,10 @@ export function FilterBar(props: FilterBarProps) {
         <button
           type="button"
           onClick={() => dialogRef.current?.showModal()}
-          className={`inline-flex items-center gap-2 rounded-full border px-4 py-2.5 text-sm font-medium ${
+          className={`inline-flex h-10 items-center gap-2 rounded-full border px-4 text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent active:scale-[0.97] ${
             activeCount > 0
-              ? "border-accent bg-accent-soft text-accent"
-              : "border-border text-text-primary"
+              ? "border-accent bg-accent-soft text-accent-strong"
+              : "border-border bg-surface text-text-primary"
           }`}
         >
           <SlidersIcon className="h-4 w-4" />
@@ -155,28 +155,30 @@ export function FilterBar(props: FilterBarProps) {
           onClick={(e) => {
             if (e.target === dialogRef.current) dialogRef.current?.close();
           }}
-          className="m-0 mt-auto max-h-[85dvh] w-full max-w-none rounded-t-2xl border-0 p-0 backdrop:bg-black/40"
+          className="sheet m-0 mt-auto max-h-[85dvh] w-full max-w-none rounded-t-2xl border-0 bg-surface p-0 text-text-primary backdrop:bg-text-primary/40"
           style={{ position: "fixed", bottom: 0, left: 0, right: 0, top: "auto" }}
           aria-label="Filter produk"
         >
-          <div className="relative flex items-center justify-between border-b border-border px-6 pt-4 pb-2">
-            <span className="mx-auto h-1 w-10 rounded-full bg-border" aria-hidden="true" />
-            <button
-              type="button"
-              onClick={() => dialogRef.current?.close()}
-              aria-label="Tutup filter"
-              className="absolute right-4 top-4 text-text-secondary"
-            >
-              <CloseIcon className="h-5 w-5" />
-            </button>
+          <div className="px-6 pt-2">
+            <span className="mx-auto block h-1 w-10 rounded-full bg-border" aria-hidden="true" />
+            <div className="mt-3 flex items-center justify-between border-b border-border pb-3">
+              <h2 className="text-lg font-semibold">Filter</h2>
+              <button
+                type="button"
+                onClick={() => dialogRef.current?.close()}
+                aria-label="Tutup filter"
+                className="-mr-2 flex h-10 w-10 items-center justify-center rounded-full text-text-secondary transition-colors hover:bg-surface-muted hover:text-text-primary"
+              >
+                <CloseIcon className="h-5 w-5" />
+              </button>
+            </div>
           </div>
-          <div className="max-h-[calc(85dvh-8rem)] overflow-y-auto px-6 pt-4 pb-6">
-            <h2 className="text-lg font-semibold">Filter</h2>
-            <div className="mt-4">
+          <div className="max-h-[calc(85dvh-9rem)] overflow-y-auto px-6 pt-5 pb-6">
+            <div>
               <FilterGroups {...props} />
             </div>
           </div>
-          <div className="flex items-center justify-between gap-4 border-t border-border px-6 py-4">
+          <div className="flex items-center justify-between gap-4 border-t border-border px-6 pt-4 pb-[calc(1rem+env(safe-area-inset-bottom))]">
             <button
               type="button"
               onClick={props.onClearAll}
@@ -187,7 +189,7 @@ export function FilterBar(props: FilterBarProps) {
             <button
               type="button"
               onClick={() => dialogRef.current?.close()}
-              className="rounded-lg bg-accent px-6 py-2.5 text-sm font-medium text-white"
+              className="h-11 rounded-full bg-accent px-8 text-sm font-medium text-white transition-colors hover:bg-accent-strong active:scale-[0.98]"
             >
               Terapkan
             </button>
