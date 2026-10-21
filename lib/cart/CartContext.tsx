@@ -85,21 +85,36 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
     toastTimeoutRef.current = setTimeout(() => setToastMessage(null), 2200);
   }
 
+  const MAX_ITEM_QUANTITY = 20;
+
   function addItem(item: Omit<CartItem, "quantity">, quantity = 1) {
+    let reachedMax = false;
     setItems((prev) => {
       const existing = prev.find((i) => i.productId === item.productId);
       if (existing) {
+        const newQty = Math.min(MAX_ITEM_QUANTITY, existing.quantity + quantity);
+        if (existing.quantity >= MAX_ITEM_QUANTITY) reachedMax = true;
         return prev.map((i) =>
-          i.productId === item.productId ? { ...i, quantity: i.quantity + quantity } : i,
+          i.productId === item.productId ? { ...i, quantity: newQty } : i,
         );
       }
-      return [...prev, { ...item, quantity }];
+      return [...prev, { ...item, quantity: Math.min(MAX_ITEM_QUANTITY, quantity) }];
     });
-    showToast(`${item.name} ditambahkan ke keranjang`);
+    if (reachedMax) {
+      showToast(`Maksimal ${MAX_ITEM_QUANTITY} unit untuk ${item.name}`);
+    } else {
+      showToast(`${item.name} ditambahkan ke keranjang`);
+    }
   }
 
   function incrementItem(productId: string) {
-    setItems((prev) => prev.map((i) => (i.productId === productId ? { ...i, quantity: i.quantity + 1 } : i)));
+    setItems((prev) =>
+      prev.map((i) =>
+        i.productId === productId
+          ? { ...i, quantity: Math.min(MAX_ITEM_QUANTITY, i.quantity + 1) }
+          : i,
+      ),
+    );
   }
 
   function decrementItem(productId: string) {

@@ -10,14 +10,18 @@ import { useEffect, useRef } from "react";
 export function LoadMoreSentinel({
   onVisible,
   loading,
+  hasError,
+  onRetry,
 }: {
   onVisible: () => void;
   loading: boolean;
+  hasError?: boolean;
+  onRetry?: () => void;
 }) {
   const sentinelRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    if (loading) return;
+    if (loading || hasError) return;
     const node = sentinelRef.current;
     if (!node) return;
 
@@ -29,7 +33,7 @@ export function LoadMoreSentinel({
     );
     observer.observe(node);
     return () => observer.disconnect();
-  }, [loading, onVisible]);
+  }, [loading, hasError, onVisible]);
 
   return (
     <div ref={sentinelRef} className="mt-8 flex justify-center">
@@ -41,6 +45,15 @@ export function LoadMoreSentinel({
           />
           Memuat...
         </span>
+      )}
+      {hasError && !loading && (
+        <button
+          type="button"
+          onClick={onRetry}
+          className="rounded-full border border-border px-5 py-2 text-sm font-medium text-text-primary transition-colors hover:border-accent hover:text-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent"
+        >
+          Coba lagi memuat produk
+        </button>
       )}
     </div>
   );

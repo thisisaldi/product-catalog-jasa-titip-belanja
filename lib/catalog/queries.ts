@@ -4,7 +4,7 @@ import { getPublicImageUrl } from "@/lib/supabase/storage";
 import type { Database } from "@/types/database";
 import type { Availability, Brand, Category, Cursor, Product, Settings } from "./types";
 
-const PAGE_SIZE = 8;
+const PAGE_SIZE = 12;
 
 type ProductPublicRow = Database["public"]["Views"]["products_public"]["Row"];
 
@@ -49,7 +49,14 @@ function decodeCursor(raw: string): Cursor | null {
   try {
     const parsed = JSON.parse(Buffer.from(raw, "base64url").toString("utf8"));
     if (typeof parsed.createdAt === "string" && typeof parsed.id === "string") {
-      return parsed;
+      // Validate createdAt is an ISO timestamp and id is a valid UUID
+      const isValidDate = !isNaN(Date.parse(parsed.createdAt));
+      const isValidUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(
+        parsed.id,
+      );
+      if (isValidDate && isValidUuid) {
+        return parsed;
+      }
     }
     return null;
   } catch {
